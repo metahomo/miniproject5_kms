@@ -22,6 +22,10 @@ status: todo
 
 [아키텍처 개요](../architecture/overview.md) — 인스턴스(서빙)·버킷(데이터·모델 저장소).
 
+## 서버
+
+도메인 `nlpwizard.eta.pyhub.kr` → `13.237.237.56` — [ADR-003](../decisions/ADR-003-domain-server.md). 2026-11-18 현재 HTTPS 미설정.
+
 ## 완료 기준 (초안)
 
 - [ ] 인스턴스 생성, 고정 IP 연결, 시작 스크립트로 실행 환경 구성

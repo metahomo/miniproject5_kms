@@ -1,0 +1,28 @@
+# 미니 프로젝트 5 — 모델·예측 장부 DB (개발용)
+# 설계: architecture/data-model.md, 결정: decisions/ADR-002-postgresql.md
+# 실행: docker compose -f db/compose.yml up -d   (접속 정보는 db/.env, 예시는 db/.env.example)
+services:
+  db:
+    image: postgres:18.7
+    container_name: miniproject5-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      # 이 PC 의 5432 는 다른 PostgreSQL 이 쓰고 있어 5433, 바깥에는 열지 않는다
+      - "127.0.0.1:5433:5432"
+    volumes:
+      # PostgreSQL 18 부터 데이터 마운트 경로는 /var/lib/postgresql (17 까지는 .../data)
+      - pgdata:/var/lib/postgresql
+      # 볼륨이 비어 있는 최초 기동 때만 실행된다
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:

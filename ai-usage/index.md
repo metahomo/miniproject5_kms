@@ -10,5 +10,9 @@ tags:
 
 | 날짜 | 작업 | 도구 | 방식 | 요구사항 |
 |---|---|---|---|---|
+| 2026-11-18 | [작업 점검과 저장소 추적 정리](./2026-11-18-repo-review.md) | Claude Code(사령관) + OpenKnowledge | review | — |
+| 2026-11-18 | [도메인·서버 상태 확인](./2026-11-18-domain-server.md) | Claude Code(사령관) | review | R1 |
+| 2026-11-18 | [GitHub 진행 관리 구성과 조감도](./2026-11-18-github-progress.md) | Claude Code(사령관) + gh CLI + Claude Docs | delegate | R2 |
+| 2026-11-18 | [PostgreSQL 장부 DB 설계·기동](./2026-11-18-postgresql-ledger.md) | Claude Code(사령관) | delegate | R3·R4·R5 |
 | 2026-11-18 | [강의 교과서화·KMS 조사·조감도](./2026-11-18-lecture-and-survey.md) | Claude Code(사령관) + 서브에이전트 4 | delegate | — |
 | 2026-11-18 | [지식 베이스 골격 만들기](./2026-11-18-kb-scaffold.md) | Claude Code + OpenKnowledge | delegate | — |

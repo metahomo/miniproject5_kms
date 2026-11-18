@@ -41,7 +41,13 @@ flowchart LR
 
 [R5 롤백](../requirements/R5-rollback.md). 런북: [롤백](../runbooks/rollback.md).
 
+## 장부 DB
+
+모델 버전·배포 이력·예측 로그는 PostgreSQL 에 둔다 — [데이터 모델](./data-model.md), [ADR-002](../decisions/ADR-002-postgresql.md). 모델 파일과 `current.json` 의 정본은 버킷이다.
+
 ## 인프라
+
+서버: `nlpwizard.eta.pyhub.kr` (`13.237.237.56`) — [ADR-003](../decisions/ADR-003-domain-server.md).
 
 [R1 Lightsail](../requirements/R1-lightsail.md). 런북: [자원 정리](../runbooks/teardown.md).
 
