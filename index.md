@@ -1,0 +1,41 @@
+---
+title: 미니 프로젝트 5 — ML 시스템 클라우드 배포
+description: Lightsail·GitHub CI/CD 기반 ML 모델 자동 학습·검증·배포·롤백 프로젝트의 홈
+tags:
+  - home
+---
+# 미니 프로젝트 5 — ML 시스템 클라우드 배포
+
+과제 원문: [과제 브리프](./sources/project-brief.md) · 학습 자료: [강의 자료 색인](./sources/lecture-index.md) · 전체 그림: [아키텍처 개요](./architecture/overview.md)
+
+## 필수 기능 현황
+
+방법은 자유, 다섯 가지 모두 지원해야 한다.
+
+| # | 기능 | 상태 | 런북 |
+|---|---|---|---|
+| R1 | [Lightsail 인스턴스·버킷 활용](./requirements/R1-lightsail.md) | todo | [자원 정리](./runbooks/teardown.md) |
+| R2 | [GitHub CI/CD — 테스트를 거쳐 서버까지](./requirements/R2-cicd.md) | todo | [코드 배포](./runbooks/deploy-code.md) |
+| R3 | [새 데이터 자동 학습·검증(게이트·parity)](./requirements/R3-auto-train-validate.md) | todo | [모델 승격](./runbooks/promote-model.md) |
+| R4 | [통과 모델 API 서버 배포](./requirements/R4-model-serving.md) | todo | [모델 승격](./runbooks/promote-model.md) |
+| R5 | [롤백 지원](./requirements/R5-rollback.md) | todo | [롤백](./runbooks/rollback.md) |
+
+## 폴더
+
+| 폴더 | 담는 것 | 템플릿 |
+|---|---|---|
+| `requirements/` | 필수 기능별 요구사항·완료 기준·검증 증거 | `requirement` |
+| `architecture/` | 설계 문서 | `design-doc` |
+| `runbooks/` | 그대로 실행하는 운영 절차 | `runbook` |
+| `experiments/` | 학습 실행별 게이트·parity·승격 기록 — [색인](./experiments/index.md) | `training-run` |
+| `decisions/` | 설계 결정(ADR) — [색인](./decisions/index.md) | `adr` |
+| `sources/` | 근거 원자료 | `source` |
+| `ai-usage/` | 작업별 AI 활용 기록(주도한 점·맡긴 점) — [색인](./ai-usage/index.md) | `ai-session` |
+| `presentation/` | 발표 원고 — [발표 개요](./presentation/index.md) | `slide-section` |
+| `reports/` | 사령관 보고서 — [KMS 활용 타당성](./reports/2026-11-18-kms-feasibility.md) | — |
+
+## 설계 원칙
+
+정답은 없다. 도메인보다 기술의 이해·활용에 초점을 두고, 강의 아키텍처는 예시로만 쓴다. 이해한 범위 안에서 최대한 온전한 서비스를 만든다 — [과제 브리프](./sources/project-brief.md#설계-원칙--정답은-없다).
+
+사령관 지침: [CLAUDE.md](./CLAUDE.md) · 부관 지침: [AGENTS.md](./AGENTS.md) · 작업 일지: [log](./log.md)

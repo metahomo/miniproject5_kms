@@ -1,0 +1,14 @@
+---
+title: AI 활용 기록 색인
+description: 작업별 AI 활용 기록 목록 — 발표 2절의 근거
+tags:
+  - ai-usage
+---
+# AI 활용 기록 색인
+
+작업 하나에 문서 하나, `ai-session` 템플릿으로 `YYYY-MM-DD-작업이름` 으로 만든다. 발표에서는 [AI 활용 방식](../presentation/02-ai-usage.md)이 여기서 골라 쓴다.
+
+| 날짜 | 작업 | 도구 | 방식 | 요구사항 |
+|---|---|---|---|---|
+| 2026-11-18 | [강의 교과서화·KMS 조사·조감도](./2026-11-18-lecture-and-survey.md) | Claude Code(사령관) + 서브에이전트 4 | delegate | — |
+| 2026-11-18 | [지식 베이스 골격 만들기](./2026-11-18-kb-scaffold.md) | Claude Code + OpenKnowledge | delegate | — |
