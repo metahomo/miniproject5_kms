@@ -14,11 +14,11 @@ tags:
 
 | # | 기능 | 상태 | 런북 |
 |---|---|---|---|
-| R1 | [Lightsail 인스턴스·버킷 활용](./requirements/R1-lightsail.md) | todo | [자원 정리](./runbooks/teardown.md) |
-| R2 | [GitHub CI/CD — 테스트를 거쳐 서버까지](./requirements/R2-cicd.md) | todo | [코드 배포](./runbooks/deploy-code.md) |
-| R3 | [새 데이터 자동 학습·검증(게이트·parity)](./requirements/R3-auto-train-validate.md) | todo | [모델 승격](./runbooks/promote-model.md) |
-| R4 | [통과 모델 API 서버 배포](./requirements/R4-model-serving.md) | todo | [모델 승격](./runbooks/promote-model.md) |
-| R5 | [롤백 지원](./requirements/R5-rollback.md) | todo | [롤백](./runbooks/rollback.md) |
+| R1 | [Lightsail 인스턴스·버킷 활용](./requirements/R1-lightsail.md) | blocked — 서버 SSH 키·AWS 자격 증명 없음 | [자원 정리](./runbooks/teardown.md) |
+| R2 | [GitHub CI/CD — 테스트를 거쳐 서버까지](./requirements/R2-cicd.md) | doing — ci.yml 시험·이미지 완료, 서버 배포 대기 | [코드 배포](./runbooks/deploy-code.md) |
+| R3 | [새 데이터 자동 학습·검증(게이트·parity)](./requirements/R3-auto-train-validate.md) | doing — model.yml train·parity | [모델 승격](./runbooks/promote-model.md) |
+| R4 | [통과 모델 API 서버 배포](./requirements/R4-model-serving.md) | doing — API·이미지 완료, 승격 잡은 서버 대기 | [모델 승격](./runbooks/promote-model.md) |
+| R5 | [롤백 지원](./requirements/R5-rollback.md) | doing — rollback.yml·server.sh 작성, 서버 대기 | [롤백](./runbooks/rollback.md) |
 
 ## 폴더
 

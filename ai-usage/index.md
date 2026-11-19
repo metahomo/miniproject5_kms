@@ -10,6 +10,7 @@ tags:
 
 | 날짜 | 작업 | 도구 | 방식 | 요구사항 |
 |---|---|---|---|---|
+| 2026-11-19 | [교사 라벨부터 학습·게이트·ONNX·서빙·워크플로까지](./2026-11-19-student-model-pipeline.md) | Claude Code(사령관) + gh CLI + 로컬 LLM | delegate | R2·R3·R4·R5 |
 | 2026-11-18 | [작업 점검과 저장소 추적 정리](./2026-11-18-repo-review.md) | Claude Code(사령관) + OpenKnowledge | review | — |
 | 2026-11-18 | [도메인·서버 상태 확인](./2026-11-18-domain-server.md) | Claude Code(사령관) | review | R1 |
 | 2026-11-18 | [GitHub 진행 관리 구성과 조감도](./2026-11-18-github-progress.md) | Claude Code(사령관) + gh CLI + Claude Docs | delegate | R2 |

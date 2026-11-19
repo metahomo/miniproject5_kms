@@ -1,0 +1,14 @@
+[
+  {"title": "Managerial coaching and employee work engagement", "abstract": "We surveyed employees in service firms and found that supervisors' coaching behaviors increased work engagement through psychological empowerment.", "label": "include"},
+  {"title": "Leader as coach: team performance in manufacturing", "abstract": "Team leaders who adopted a coaching leadership style improved team learning and performance in manufacturing plants.", "label": "include"},
+  {"title": "Coaching leadership, job satisfaction and turnover intention of nurses", "abstract": "Head nurses' coaching leadership reduced turnover intention of hospital nurses, mediated by job satisfaction.", "label": "include"},
+  {"title": "Supervisor coaching and innovative behavior of public officials", "abstract": "Data from public organizations show that managerial coaching predicts innovative work behavior.", "label": "include"},
+  {"title": "코칭리더십이 직무열의에 미치는 영향", "abstract": "중소기업 직장인을 대상으로 상사의 코칭리더십이 직무열의와 조직몰입에 미치는 영향을 분석하였다.", "label": "include"},
+  {"title": "리더의 코칭 행동과 구성원의 혁신행동", "abstract": "팀장의 코칭 행동이 구성원의 심리적 안전감을 높여 혁신행동을 촉진하는지 검증하였다.", "label": "include"},
+  {"title": "Coaching behaviors of youth soccer coaches and athlete motivation", "abstract": "We observed sports coaches during training sessions and measured athlete motivation and burnout.", "label": "exclude"},
+  {"title": "Strength and conditioning coaching for elite swimmers", "abstract": "A training program designed by swimming coaches improved sprint performance of elite athletes.", "label": "exclude"},
+  {"title": "Deep learning for protein structure prediction", "abstract": "We propose a transformer model that predicts protein structures from amino acid sequences.", "label": "exclude"},
+  {"title": "스포츠 지도자의 코칭 행동과 선수 만족", "abstract": "고등학교 축구 선수를 대상으로 감독의 코칭 행동이 운동 만족에 미치는 영향을 분석하였다.", "label": "exclude"},
+  {"title": "Executive coaching by external coaches: a review", "abstract": "This review summarizes executive coaching delivered by professional external coaches to senior executives.", "label": "exclude"},
+  {"title": "Urban traffic flow forecasting with graph networks", "abstract": "Graph neural networks forecast traffic speed on urban road networks.", "label": "exclude"}
+]

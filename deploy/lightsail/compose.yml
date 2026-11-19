@@ -1,0 +1,12 @@
+# 서버의 바라는 상태는 .env : IMAGE, TAG, MODEL_VERSION, MODEL_DIR (server.sh 가 바꾼다)
+services:
+  api:
+    image: ${IMAGE}/paperclf-api:${TAG}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080" # 밖에는 Caddy(80/443)만 연다 — 5단계 HTTPS
+    environment:
+      MODEL_IMPL: onnx
+      MODEL_DIR: ${MODEL_DIR:-/models/none}
+    volumes:
+      - /srv/paperclf/models:/models:ro

@@ -51,8 +51,29 @@ flowchart LR
 
 [R1 Lightsail](../requirements/R1-lightsail.md). 런북: [자원 정리](../runbooks/teardown.md).
 
+## 구현 (2026-11-19, PR [#19](https://github.com/metahomo/miniproject5_kms/pull/19))
+
+```mermaid
+flowchart LR
+  kms[(KMS 운영 DB<br/>읽기 전용)] --> teacher[교사: 로컬 LLM 판정<br/>labeler/teacher_label.py]
+  teacher --> snap[(라벨 스냅숏<br/>data/snapshots — 원문 없음)]
+  snap -->|main 에 push| model[model.yml<br/>GitHub 러너]
+  model --> g{게이트 F1<br/>parity 1e-5}
+  g -->|통과 + DEPLOY_ENABLED| promote[promote<br/>서버 러너 → 버킷 → server.sh model]
+  g -->|실패| stop[운영 모델 유지]
+  code[코드 PR / v* 태그] --> ci[ci.yml<br/>pytest → 이미지 → GHCR]
+  ci -->|DEPLOY_ENABLED| deploy[deploy<br/>server.sh image]
+```
+
+| 항목 | 정한 것 | 근거 |
+|---|---|---|
+| 예측 대상 | 논문 제목·초록 → p(include), 주제 coaching-leadership | [ADR-005](../decisions/ADR-005-student-model-snapshot.md) |
+| 모델 | 해싱 글자 n-gram(32,768) → TF-IDF → 로지스틱 회귀, ONNX(double) 서빙 | ADR-005 |
+| 서빙 런타임 | Python FastAPI + onnxruntime 컨테이너 1종(Go·Rust 는 만들지 않음), parity 는 원본 sklearn ↔ 서빙 이미지 | [개선점](../presentation/03-improvements.md) |
+| 학습 위치 | GitHub 호스팅 러너(`ubuntu-24.04`). 승격·배포·되돌리기만 서버의 self-hosted 러너 | 강의 03 §7.5 |
+| 게이트·parity | [ADR-006](../decisions/ADR-006-gate-parity.md) (잠정) | — |
+
 ## 미해결
 
-- 예측 대상 모델·데이터셋
-- 서빙 런타임(Python/Go/Rust, 컨테이너 여부)
-- 학습 실행 위치(GitHub 호스팅 러너 / 인스턴스)
+- 서버 접근(SSH 키)·버킷(AWS) — 배포·승격·되돌리기 잡은 저장소 변수 `DEPLOY_ENABLED` 로 꺼 둠
+- 예측 로그를 장부 DB 에 남기는 방법 — [#15](https://github.com/metahomo/miniproject5_kms/issues/15)

@@ -1,0 +1,132 @@
+name: model
+# 모델 판: 코드는 그대로 두고 다시 학습 → 게이트 → ONNX → parity → (서버가 준비되면) 승격
+on:
+  workflow_dispatch:
+    inputs:
+      data_fraction:
+        description: "학습 데이터 비율 (0~1). 일부러 약한 모델을 만들어 게이트를 시험할 때 낮춘다"
+        default: "1.0"
+  push:
+    branches: [main]
+    paths: ["data/snapshots/**"] # 새 라벨 스냅숏 = 새 데이터 → 자동 재학습
+  pull_request: # 모델에 닿는 변경은 병합 전에 학습·게이트·parity 까지 본다 (승격은 하지 않는다)
+    paths: ["data/snapshots/**", "training/**", "paperclf/**", "api/**", "uv.lock", ".github/workflows/model.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  train: # 판 이름 → 학습 → 게이트(실패하면 여기서 멈춘다) → ONNX → 모델 카드
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    env:
+      DATA_FRACTION: ${{ inputs.data_fraction || '1.0' }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+      - name: 입력 검사
+        run: '[[ $DATA_FRACTION =~ ^(0(\.[0-9]+)?|1(\.0+)?)$ ]] || { echo "data_fraction 형식이 아니다: $DATA_FRACTION" >&2; exit 1; }'
+      - name: 모델 판 이름 (날짜-실행 번호)
+        id: ver
+        run: echo "version=m$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+      - run: uv sync --locked --group train
+      - run: uv run --locked --group train python -m training.train
+      - name: 검증 게이트
+        run: uv run --locked python -m training.validate_model
+      - run: uv run --locked --group train python -m training.export_onnx
+      - run: uv run --locked python -m training.model_card
+        env:
+          MODEL_VERSION: ${{ steps.ver.outputs.version }}
+      - name: 요약
+        if: always()
+        run: |
+          [ -f artifacts/metrics.json ] && python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          m = json.load(open("artifacts/metrics.json"))
+          g, r = m["gate"], m.get("gate_result", {})
+          print(f"### 게이트 {'통과' if r.get('passed') else '실패'}")
+          print(f"- F1 {g['f1']} · 정밀도 {g['precision']} · 재현율 {g['recall']} (시험지 {g['n']}편, 기준선 {m['baseline_f1']})")
+          print(f"- 학습 {m['data']['n_train']}편, 비율 {m['data']['data_fraction']}")
+          for f in r.get("fails", []): print(f"- ❌ {f}")
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: model-artifacts
+          path: artifacts/
+
+  parity: # 새 모델을 서빙 이미지(ONNX)에 넣어 원본(sklearn)과 같은 확률을 내는지
+    needs: train
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: model-artifacts
+          path: artifacts/
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+      - run: uv sync --locked --group train
+      - name: 서빙 이미지 빌드·실행
+        run: |
+          docker build -f api/Dockerfile -t paperclf-api:parity .
+          docker run -d -p 8083:8080 -v "$PWD/artifacts:/models/current:ro" paperclf-api:parity
+          for i in $(seq 1 60); do sleep 1; curl -sf localhost:8083/health | grep -q '"status":"ok"' && exit 0; done
+          docker logs "$(docker ps -q | head -1)"; exit 1
+      - run: uv run --locked --group train python -m training.check_parity
+        env:
+          TARGETS: onnx-image=http://127.0.0.1:8083
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: parity-report
+          path: artifacts/parity.json
+
+  promote: # 내 서버의 러너가: 버킷에 올리고 → 새 판으로 띄워 확인 → current.json — DEPLOY_ENABLED=true 일 때만
+    needs: [train, parity]
+    if: github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: [self-hosted, lightsail]
+    concurrency: { group: lightsail, cancel-in-progress: false }
+    permissions:
+      contents: read
+      actions: read
+    env:
+      VER: ${{ needs.train.outputs.version }}
+      BUCKET: ${{ vars.MODEL_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: cp deploy/lightsail/compose.yml deploy/lightsail/server.sh /srv/paperclf/
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: model-artifacts
+          path: incoming/
+      - name: 낡은 실행인지 (이 실행이 시작된 뒤 포인터가 바뀌었으면 승격하지 않는다)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CREATED=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            | python3 -c 'import sys, json; print(json.load(sys.stdin)["created_at"])')
+          SET_AT=$(aws s3 cp "s3://$BUCKET/models/current.json" - 2>/dev/null \
+            | python3 -c 'import sys, json; print(json.load(sys.stdin).get("set_at", ""))' || true)
+          if [[ -n $SET_AT && $SET_AT > $CREATED ]]; then echo "낡은 실행 — 승격하지 않는다" >&2; exit 1; fi
+      - name: 버킷에 판 올리기 (이미 있는 판은 덮어쓰지 않는다)
+        run: |
+          if aws s3api head-object --bucket "$BUCKET" --key "models/$VER/model.json" >/dev/null 2>&1; then
+            echo "$VER 은 이미 버킷에 있다" >&2; exit 1
+          fi
+          aws s3 cp incoming/model.onnx "s3://$BUCKET/models/$VER/model.onnx"
+          aws s3 cp incoming/model.json "s3://$BUCKET/models/$VER/model.json"
+      - name: 버킷에서 받아 새 판으로 띄우기
+        run: |
+          aws s3 cp --recursive "s3://$BUCKET/models/$VER/" "/srv/paperclf/models/$VER/"
+          bash /srv/paperclf/server.sh model "$VER"
+      - name: 포인터 바꾸기
+        run: |
+          echo "{\"model_version\": \"$VER\", \"set_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"run\": \"$GITHUB_RUN_ID\"}" > current.json
+          aws s3 cp current.json "s3://$BUCKET/models/current.json"

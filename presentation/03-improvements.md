@@ -25,6 +25,11 @@ status: draft
 | 5 | 02 › 3.3 | 사령관(CLAUDE.md)·부관(AGENTS.md) 이원 지침, 위임 지시서 5요소 | 여러 에이전트의 범위·증거 통제 | [사령관 지침](../CLAUDE.md) |
 | 6 | (강의에 없음) | GitHub 이슈·마일스톤·칸반 + 강의 순서 대조표 | 진행 증거가 한 곳에 링크로 남음 | 조감도 "GitHub 영역별 세부" |
 | 7 | 03 › 4장 | 도메인 연결, HTTPS 를 공개 조건으로 | 로그인·HTTPS 없는 외부 공개 금지 | [ADR-003](../decisions/ADR-003-domain-server.md) |
+| 8 | 02 › 8.2 데이터(합성) | 실제 데이터: GPU LLM 판정을 교사로, CPU 학생 모델로 증류 | GPU 없는 Lightsail 에서 싸게 서빙 | Actions 모델 판 m20261119-1 F1 0.9603 — [ADR-005](../decisions/ADR-005-student-model-snapshot.md) |
+| 9 | (강의에 없음) | 공개 저장소에 원문 대신 해싱 특징만 올림 | 초록 저작권 — 학습은 재현되고 원문은 되돌릴 수 없다 | ADR-005 |
+| 10 | 02 › 9.2~9.7 Go·Rust | 서빙은 Python+ONNX 한 종류, parity 는 원본 ↔ 실제 서빙 이미지 | 배포되는 바로 그 이미지를 검사한다. 변환기 옵션(sublinear_tf) 하나로 0.0018 어긋나는 것을 실제로 잡았다 | [ADR-006](../decisions/ADR-006-gate-parity.md) |
+| 11 | 03 › 7.5 model.yml(수동 실행) | 모델에 닿는 PR 에서도 학습·게이트·parity, 승격은 main 에서만 | 병합 전에 모델 품질을 본다 | PR #19 의 model 실행 |
+| 12 | 02 › 8.3 "일부러 덜 학습" | 게이트를 하한·기준선 여유·운영 대비 하락폭 셋으로 | 불균형 데이터(include 79%)에서는 "전부 include" 가 F1 0.88 이라 하한 하나로는 약하다 | ADR-006 |
 
 ## 슬라이드 원고
 
