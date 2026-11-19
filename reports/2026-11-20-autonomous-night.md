@@ -31,6 +31,7 @@ date: 2026-11-20
 | 발표 | [시연 대본](../presentation/05-demo-script.md)(7분), 슬라이드 17장 다듬기(장 제목=결론, 시연 4장) | PR #33, md-slides |
 | GitHub | [README](../README.md) 신설, [공지 #35](https://github.com/metahomo/miniproject5_kms/discussions/35), 릴리스 v0.1.4, 마일스톤 0·1·3·4 닫음 | PR #34 |
 | 문서 상태 맞춤 | 저장소 전체 상대 링크 깨짐 0, 낡은 "버킷 미생성·배포 꺼 둠" 정리 | PR #32 |
+| 보안 헤더 | HTTPS 응답에 HSTS 1년·nosniff·no-referrer, Server 헤더 숨김 — 적용·확인 | PR #41 |
 | 조감도 | 흐름도에 운영 장부·API 보호, 단계·카드 상태는 `gh` 조회 생성기로 | main 자동 푸시 |
 | KMS | 수집 2회(fetched 1,200 · unique 867 · 새 논문 0 — OpenAlex 응답이 UTC 날짜별 캐시), 6시간마다 예약. KMS 웹 `127.0.0.1:10001` 다시 띄움(works 867) | — |
 
