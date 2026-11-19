@@ -29,7 +29,8 @@ case "${1:-}" in
     setenv IMAGE "$IMAGE"; setenv TAG "$TAG"
     docker compose up -d
     if ! health; then
-      [ -n "$PREV" ] && { setenv TAG "$PREV"; docker compose up -d; }
+      echo "새 이미지 $TAG health 실패 — 직전 $PREV 로 돌아간다" >&2
+      [ -n "$PREV" ] && { setenv TAG "$PREV"; docker compose up -d; health || echo "복귀한 $PREV 도 health 실패" >&2; }
       exit 1
     fi
     ;;
@@ -41,9 +42,12 @@ case "${1:-}" in
     setenv MODEL_VERSION "$VER"; setenv MODEL_DIR "/models/$VER"
     docker compose up -d
     if ! health "$VER"; then
+      echo "새 판 $VER health 실패 — 직전 ${PREV:-없음} 으로 돌아간다" >&2
       if [ -n "$PREV" ]; then setenv MODEL_VERSION "$PREV"; setenv MODEL_DIR "/models/$PREV"
       else sed -i '/^MODEL_VERSION=/d; /^MODEL_DIR=/d' .env; fi
-      docker compose up -d; exit 1
+      docker compose up -d
+      [ -n "$PREV" ] && { health "$PREV" || echo "복귀한 $PREV 도 health 실패" >&2; }
+      exit 1
     fi
     ;;
   status)
