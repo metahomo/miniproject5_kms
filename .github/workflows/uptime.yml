@@ -1,0 +1,29 @@
+name: uptime
+# 운영 감시: 밖에서 매시간 /health 를 부른다. 응답이 없거나 status 가 ok 가 아니면 실패 → GitHub 가 저장소 주인에게 알린다
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      URL: https://54-252-22-31.sslip.io/health
+    steps:
+      - name: /health (세 번까지 다시)
+        run: |
+          for i in 1 2 3; do
+            if H=$(curl -fsS --max-time 15 "$URL"); then
+              echo "$H" | python3 -c 'import sys, json; d = json.load(sys.stdin); print(d["status"], d["app_version"], d["model_version"]); sys.exit(0 if d["status"] == "ok" else 1)' && exit 0
+            fi
+            sleep 20
+          done
+          echo "운영 /health 실패: $URL" >&2; exit 1
+      - name: 요약
+        if: always()
+        run: curl -fsS --max-time 15 "$URL" | python3 -c 'import sys, json; d = json.load(sys.stdin); print(f"### 운영 {d[\"status\"]} — app {d[\"app_version\"]} · model {d[\"model_version\"]}")' >> "$GITHUB_STEP_SUMMARY" || echo "### 운영 응답 없음" >> "$GITHUB_STEP_SUMMARY"
