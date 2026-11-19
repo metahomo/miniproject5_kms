@@ -14,12 +14,13 @@ import time
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field, model_validator
 
 from paperclf.features import FEATURE_VERSION, N_FEATURES, to_dense, vectorize
 from paperclf.labels import label_for
 
+from api.guard import Guard
 from api.prediction_log import PredictionLog
 
 APP_VERSION = os.getenv("APP_VERSION", "dev")
@@ -59,6 +60,7 @@ class _Model:
 
 MODEL = _Model()
 PREDICTION_LOG = PredictionLog()
+GUARD = Guard()
 app = FastAPI(title="paperclf", version=APP_VERSION)
 
 
@@ -92,12 +94,14 @@ def health() -> dict:
         "app_version": APP_VERSION,
         "model_version": MODEL.version,
         "feature_version": FEATURE_VERSION,
+        "guard": GUARD.status(),
         "prediction_log": {"enabled": PREDICTION_LOG.enabled, "written": PREDICTION_LOG.written, "dropped": PREDICTION_LOG.dropped},
     }
 
 
 @app.post("/predict", response_model=Prediction)
-def predict(paper: Paper) -> Prediction:
+def predict(paper: Paper, request: Request) -> Prediction:
+    GUARD.check(request)
     t0 = time.perf_counter()
     x = to_dense(paper.features) if paper.features is not None else vectorize(paper.title, paper.abstract)
     p = float(MODEL.p_include(x.reshape(1, -1))[0])
