@@ -74,3 +74,22 @@ tags:
 - 연구자 결정으로 작업 분리: ① R1~R5 는 작업용 서버 `Amazon_Linux_2026_kms`(`54.252.22.31`)에서, ② 교수님 사이트(`13.237.237.56`) 게시는 맨 마지막에 교수님 지시대로. DNS 그대로, PR #21 보류.
 - 작업용 서버: Docker·Compose·Caddy(임시)·`/srv/paperclf`·러너 `paperclf` 온라인. Mac AWS CLI 는 IAM 사용자 `paperclf-commander` + 정책 `paperclf-lightsail`. 노출된 첫 접근 키 삭제·교체. 실습 잔여물(버킷 `nlpwi-eta-models`, 고정 IP `eta-deploy-ip`, 키 페어 2개) 삭제.
 - 문서: [R1](./requirements/R1-lightsail.md) 서버 절, [자원 정리](./runbooks/teardown.md) 절차 ③, [보고서](./reports/2026-11-19-autonomous-progress.md) 8절.
+
+## 2026-11-19 저녁 — 조감도 정비와 사령관 지침 정리
+
+한 일
+
+- PR [#22](https://github.com/metahomo/miniproject5_kms/pull/22)·[#23](https://github.com/metahomo/miniproject5_kms/pull/23)·[#24](https://github.com/metahomo/miniproject5_kms/pull/24) 병합(검사 통과), 보드 카드 Done.
+- 조감도 경로 확정: claude.ai 조감도(연구자 계정)는 Mac 서버 계정에서 읽기·쓰기 불가, 맥서버 계정 외부 공유 불가(교수님 확인), 연구자 PC 의 Z: 는 Mac 서버가 아님. → 연구자가 보는 조감도 = 연구자 PC 저장소 사본의 [`reports/birdseye-update.html`](./reports/birdseye-update.html). 예약 작업 `birdseye-pull`(5분마다 `git pull`) + 페이지 1분 자동 새로 고침으로 연구자 손 없이 갱신.
+- 조감도 두 파일(md·html)은 진행이 바뀌면 사령관이 묻지 않고 main 에 커밋·푸시(연구자 상시 허락). 연구자가 "조감도"라고 하면 = 볼 수 없는 상태 → 사령관이 볼 수 있게 조처하고 한 일·할 일로 보고(절대규칙).
+- 조감도를 Windows 때 구성(이 로그 2026-11-18 줄, [AI 활용 기록](./ai-usage/2026-11-18-github-progress.md))대로 다시 만듦: 한 눈에(6단계 × GitHub 기능) · 자세히(칸반 카드 16장 ↔ 단계·소주제) · 흐름도 · 단계별 설명 · GitHub 영역별 세부 · 강의 순서 대조 · 발표 순서 · AI 활용 · 강의 대비 개선점 · AI 에게 서비스 + 단계별 문·R1~R5·자원·PR·할 일. 상태 칸은 `gh` 조회에서 옮기는 생성기(Mac `~/.claude/birdseye/build.py`)로 만든다.
+- [사령관 지침](./CLAUDE.md) 정리: 조감도 규칙을 2절 한 곳으로, 멀티 수행·커밋 규칙·사실 규칙 중복 제거, 옛 경로(`Z:\`)와 없는 절 지시 삭제(98 → 91줄).
+- GitHub Pages(`gh-pages`)·claude.ai 아티팩트판 조감도는 연구자가 열 수 없어 쓰지 않음.
+
+할 일
+
+1. 결정 이슈 #14·#15·#16 — ADR-008·009·007 링크 댓글 후 닫기(보드 Review → Done).
+2. 연구자 "배포 시작해" → 버킷·저장소 변수, HTTPS·Tailscale, `v0.1.1` 첫 배포 → `/health` (2단계 문).
+3. 모델 첫 승격 → 되돌리기 → 다시 앞으로 (4단계 문).
+4. 조감도 화면이 원본 claude.ai 조감도와 다른 곳은 연구자 스크린샷을 받아 고침.
+5. 쓰지 않는 `gh-pages` 브랜치·claude.ai 아티팩트판 정리 여부 결정.
