@@ -1,0 +1,6 @@
+# /srv/eta/compose.override.yml — eta 를 밖(80)에서 떼어 Caddy 뒤(127.0.0.1:8090)로 옮긴다.
+# eta 의 배포는 compose.yml 만 덮어쓰므로 이 파일은 남는다. eta 의 health(localhost/health)는 Caddy :80 을 거쳐 그대로 된다.
+services:
+  api:
+    ports: !override
+      - "127.0.0.1:8090:8080"

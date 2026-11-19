@@ -63,7 +63,7 @@ jobs:
   deploy: # 내 서버의 러너가 새 이미지로 바꾼다 — 저장소 변수 DEPLOY_ENABLED=true 일 때만
     needs: image
     if: startsWith(github.ref, 'refs/tags/v') && vars.DEPLOY_ENABLED == 'true'
-    runs-on: [self-hosted, lightsail]
+    runs-on: [self-hosted, lightsail, paperclf]
     concurrency: { group: lightsail, cancel-in-progress: false }
     permissions:
       contents: read

@@ -1,0 +1,13 @@
+# /srv/caddy — 앱과 따로 돈다. 앱 배포(server.sh)가 Caddy 를 건드리지 않는다
+services:
+  caddy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    network_mode: host # 127.0.0.1:8080·8090 에 닿기 위해
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  caddy_data:
+  caddy_config:
