@@ -18,6 +18,12 @@ services:
       retries: 10
     restart: unless-stopped
     mem_limit: 256m
+    networks: [default, ledger]
 
 volumes:
   pgdata:
+
+networks:
+  ledger: # API 가 예측 로그를 쓰는 길 — 도커 안에서만(밖에는 안 열림)
+    external: true
+    name: paperclf-ledger-net

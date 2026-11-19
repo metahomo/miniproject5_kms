@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import pickle
+import time
 from pathlib import Path
 
 import numpy as np
@@ -18,6 +19,8 @@ from pydantic import BaseModel, Field, model_validator
 
 from paperclf.features import FEATURE_VERSION, N_FEATURES, to_dense, vectorize
 from paperclf.labels import label_for
+
+from api.prediction_log import PredictionLog
 
 APP_VERSION = os.getenv("APP_VERSION", "dev")
 MODEL_IMPL = os.getenv("MODEL_IMPL", "onnx")
@@ -55,6 +58,7 @@ class _Model:
 
 
 MODEL = _Model()
+PREDICTION_LOG = PredictionLog()
 app = FastAPI(title="paperclf", version=APP_VERSION)
 
 
@@ -88,14 +92,19 @@ def health() -> dict:
         "app_version": APP_VERSION,
         "model_version": MODEL.version,
         "feature_version": FEATURE_VERSION,
+        "prediction_log": {"enabled": PREDICTION_LOG.enabled, "written": PREDICTION_LOG.written, "dropped": PREDICTION_LOG.dropped},
     }
 
 
 @app.post("/predict", response_model=Prediction)
 def predict(paper: Paper) -> Prediction:
+    t0 = time.perf_counter()
     x = to_dense(paper.features) if paper.features is not None else vectorize(paper.title, paper.abstract)
     p = float(MODEL.p_include(x.reshape(1, -1))[0])
-    return Prediction(p_include=p, label=label_for(p), model_version=MODEL.version)
+    label = label_for(p)
+    if paper.features is None:  # parity 확인용 특징 입력은 운영 예측이 아니라 남기지 않는다
+        PREDICTION_LOG.record(MODEL.version, paper.title, paper.abstract, p, label, (time.perf_counter() - t0) * 1000)
+    return Prediction(p_include=p, label=label, model_version=MODEL.version)
 
 
 @app.get("/model")
