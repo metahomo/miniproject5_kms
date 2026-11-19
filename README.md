@@ -37,6 +37,7 @@ KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과�
 | `labeler/` | KMS DB(읽기 전용) → 교사 라벨 → 원문 없는 스냅숏 |
 | `data/snapshots/` | 공개 학습 데이터 — 해싱 특징만, 초록 원문 없음([ADR-005](./decisions/ADR-005-student-model-snapshot.md)) |
 | `paperclf/` · `training/` | 특징·라벨 규칙, 학습·게이트·ONNX 변환·모델 카드·parity |
+| `skills/` | 에이전트 스킬 — [`paperclf-classify`](./skills/paperclf-classify/SKILL.md): 판정 도구를 언제·어떻게 쓰고 결과를 어떻게 읽는지 |
 | `api/` | FastAPI 서빙(`/health` · `/predict` · `/model`), MCP 서버(`classify_paper`), 토큰 인증·사용량 제한, 예측 로그 |
 | `deploy/lightsail/` | 서버 스크립트(`server.sh`), compose, Caddy(HTTPS), 운영 장부 DB(`ledger/`) |
 | `db/init/` | 장부 스키마(트리거가 미통과 모델의 배포 기록을 거부) |
