@@ -1,0 +1,15 @@
+# 한 서버에 두 앱 — Caddy 가 80/443 을 맡고 이름으로 나눈다 (2026-11-19 연구자 결정: 공존)
+#   nlpwizard.eta.pyhub.kr → paperclf(127.0.0.1:8080), HTTPS 인증서는 Caddy 가 자동 발급
+#   그 밖(IP 로 직접, localhost) → 기존 delivery-eta(127.0.0.1:8090)
+{
+	admin off
+}
+
+nlpwizard.eta.pyhub.kr {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8080
+}
+
+:80 {
+	reverse_proxy 127.0.0.1:8090
+}

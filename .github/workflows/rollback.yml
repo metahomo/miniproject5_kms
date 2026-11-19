@@ -13,7 +13,7 @@ permissions:
 jobs:
   rollback:
     if: vars.DEPLOY_ENABLED == 'true'
-    runs-on: [self-hosted, lightsail]
+    runs-on: [self-hosted, lightsail, paperclf]
     concurrency: { group: lightsail, cancel-in-progress: false }
     env:
       VER: ${{ inputs.version }} # 입력은 env 로만 넘긴다 (스크립트 주입 방지)
