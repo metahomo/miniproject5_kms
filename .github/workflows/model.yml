@@ -9,6 +9,8 @@ on:
   push:
     branches: [main]
     paths: ["data/snapshots/**"] # 새 라벨 스냅숏 = 새 데이터 → 자동 재학습
+  pull_request: # 모델에 닿는 변경은 병합 전에 학습·게이트·parity 까지 본다 (승격은 하지 않는다)
+    paths: ["data/snapshots/**", "training/**", "paperclf/**", "api/**", "uv.lock", ".github/workflows/model.yml"]
 
 permissions:
   contents: read
@@ -87,7 +89,7 @@ jobs:
 
   promote: # 내 서버의 러너가: 버킷에 올리고 → 새 판으로 띄워 확인 → current.json — DEPLOY_ENABLED=true 일 때만
     needs: [train, parity]
-    if: vars.DEPLOY_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
     runs-on: [self-hosted, lightsail]
     concurrency: { group: lightsail, cancel-in-progress: false }
     permissions:
