@@ -14,5 +14,14 @@
 
 54-252-22-31.sslip.io {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:8080
+	# 보안 헤더 — HTTPS 만 쓰게(HSTS 1년), MIME 추측 막기, 참조 정보 줄이기, 뒤 서버 이름 숨기기
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+	reverse_proxy 127.0.0.1:8080 {
+		header_down -Server
+	}
 }
