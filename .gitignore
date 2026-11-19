@@ -16,3 +16,9 @@ Desktop.ini
 .github/skills/
 # 폴더별 템플릿·frontmatter 규칙 (맨 위 .ok/config.yml 만 추적)
 */.ok/
+
+# 미니 프로젝트 코드
+.venv/
+__pycache__/
+.pytest_cache/
+artifacts/
