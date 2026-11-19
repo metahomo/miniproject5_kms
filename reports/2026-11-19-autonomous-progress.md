@@ -1,6 +1,6 @@
 ---
 title: 보고서 — 2026-11-19 연구자 외출 중 자율 진행과 조감도 보충 문안
-description: 전권 위임 동안 사령관이 한 일, 단계별 문 통과 여부, 막힌 것, 조감도에 옮길 문안, 오후 진행(이슈 닫기·결정 확정)
+description: 전권 위임 동안 사령관이 한 일, 단계별 문 통과 여부, 막힌 것, 조감도에 옮길 문안, 오후 진행(이슈 닫기·결정 확정, 작업용 서버·AWS 정리)
 tags:
   - report
 date: 2026-11-19
@@ -81,3 +81,27 @@ date: 2026-11-19
 | 발표 보조 | 슬라이드 17장, claude.ai 페이지(비공개) | [슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · `https://claude.ai/artifact/7TLMuRWcCT9w8buwWknH4q` |
 | 정리 | OpenKnowledge 를 프로젝트에서 모두 제거, 템플릿은 [`templates/`](../templates/) 로 옮김(오전) | — |
 | 진행 방식 | 부관 6명 병렬 조사 → 사령관이 명령으로 재확인 → 이슈 닫기·결정 확정·문서 병렬 작성 | [AI 활용 기록](../ai-usage/2026-11-19-board-and-delegation.md) |
+
+## 8. 2026-11-19 오후 — 작업용 서버·AWS 정리
+
+연구자가 일을 두 갈래로 나눴다.
+
+1. **① R1~R5 는 강의 순서대로 연구자의 작업용 서버에서 한다** — Lightsail `Amazon_Linux_2026_kms`(Amazon Linux 2023, 2GB·2vCPU·60GB, `ap-southeast-2a`), 고정 IP `54.252.22.31`(`StaticIp-1`).
+2. **② 교수님 사이트 `nlpwizard.eta.pyhub.kr`(`13.237.237.56`)에 최종 결과를 올리는 일은 맨 마지막에, 교수님 지시대로 따로 한다.** DNS 는 바꾸지 않는다. eta 와 Caddy 를 함께 두는 계획(PR #21)은 ②에 속해 보류.
+
+4절의 "서버 접근"·"AWS" 막힘은 작업용 서버로 풀렸다(② 는 여전히 대기).
+
+| 일 | 결과 | 증거 |
+|---|---|---|
+| 작업용 서버 | Docker 25, Compose 2.40.3, Caddy(임시 `:80 → 127.0.0.1:8080`), `/srv/paperclf`, 러너 `paperclf` 온라인. HTTPS 는 `54-252-22-31.sslip.io` 로 예정 | [작업용 서버 런북](../runbooks/work-server.md) · [R1](../requirements/R1-lightsail.md) |
+| AWS CLI(Mac) | IAM 사용자 `paperclf-commander` + 고객 관리형 정책 `paperclf-lightsail`(`lightsail:*`), 리전 `ap-southeast-2`. 조직 SCP 가 `ap-southeast-2`·`us-east-1` 외 리전을 막음 | 사령관 명령 확인 |
+| 접근 키 교체 | 첫 접근 키가 대화에 노출되어 삭제하고 새 키로 바꿈. 키 값은 어떤 문서에도 적지 않는다 | — |
+| 실습 잔여물 삭제(연구자 지시) | 버킷 `nlpwi-eta-models`, 붙어 있지 않던 고정 IP `eta-deploy-ip`(13.210.129.4), 키 페어 `eta-mini-aws-key`·`eta-mini-ip` | 사령관 명령 확인 |
+| 남은 자원 | 인스턴스 1, `StaticIp-1`, 키 페어 `LightsailDefaultKeyPair`·`miniproject5`, 버킷 0(프로젝트 버킷은 "배포 시작해" 뒤) | — |
+| 정리 절차 | IAM 키·사용자·정책, Tailscale 기기·인증 키, 버킷, 인스턴스, `StaticIp-1`, 키 페어 `miniproject5` 를 지우는 절차 ③ 추가 | [자원 정리](../runbooks/teardown.md) |
+
+대기
+
+- GitHub 저장소 `metahomo/eta-mini-aws` · `metahomo/eta-mini` 완전 삭제 — 연구자 결정, `delete_repo` 권한 승인 대기.
+- Tailscale — 연구자 가입 중, 서버 미설치.
+- 배포 — 연구자의 "배포 시작해" 대기(그때 프로젝트 버킷 생성).
