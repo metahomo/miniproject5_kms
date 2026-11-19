@@ -12,8 +12,8 @@ tags:
 
 | ADR | 제목 | 상태 |
 |---|---|---|
-| [ADR-006](./ADR-006-gate-parity.md) | 게이트 시험지·지표·임계값과 parity 허용 오차 (잠정, #12 · #13) | proposed |
-| [ADR-005](./ADR-005-student-model-snapshot.md) | 배포 모델(교사 LLM → 학생 TF-IDF 로지스틱)과 원문 없는 라벨 스냅숏 | proposed |
+| [ADR-006](./ADR-006-gate-parity.md) | 게이트 시험지·지표·임계값과 parity 허용 오차 (#12 · #13) | accepted |
+| [ADR-005](./ADR-005-student-model-snapshot.md) | 배포 모델(교사 LLM → 학생 TF-IDF 로지스틱)과 원문 없는 라벨 스냅숏 | accepted |
 | [ADR-004](./ADR-004-kms-auto-collection-unfreeze.md) | KMS 참고문헌·운영 DB 동결을 자동 수집에 한해 푼다 | accepted |
 | [ADR-003](./ADR-003-domain-server.md) | 서비스 도메인 nlpwizard.eta.pyhub.kr · 서버 13.237.237.56 | accepted |
 | [ADR-002](./ADR-002-postgresql.md) | 모델·예측 장부 DB 로 PostgreSQL 을 쓴다 | accepted |
@@ -23,9 +23,9 @@ tags:
 각 요구사항 문서의 미해결 절에서 모았다.
 
 - 도메인(게임·유사 도메인·기존 서비스 벤치마킹 중) — [발표 1절](../presentation/01-architecture-why-flow.md)
-- ~~예측 대상 모델·데이터셋~~ → [ADR-005](./ADR-005-student-model-snapshot.md)(잠정)
+- ~~예측 대상 모델·데이터셋~~ → [ADR-005](./ADR-005-student-model-snapshot.md)
 - AI에게 서비스 제공 방식(옵션) — [발표 4절](../presentation/04-service-for-ai.md)
-- ~~게이트 지표·임계값, parity 허용 오차~~ → [ADR-006](./ADR-006-gate-parity.md)(잠정)
+- ~~게이트 지표·임계값, parity 허용 오차~~ → [ADR-006](./ADR-006-gate-parity.md)
 - 코드 배포 방식(SSH / 자체 호스팅 러너) — [R2](../requirements/R2-cicd.md)
 - 모델 형식·교체 방식 — [R4](../requirements/R4-model-serving.md)
 - 버전 이력 보관 개수 — [R5](../requirements/R5-rollback.md)

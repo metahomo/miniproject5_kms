@@ -5,9 +5,9 @@ tags:
   - adr
   - model
   - data
-status: proposed
+status: accepted
 date: 2026-11-19
-decider: "사령관(연구자 외출 중 전권 위임, 2026-11-19) — 연구자 확인 대기"
+decider: "사령관 제안(2026-11-19 전권 위임 중) → 연구자 확정(2026-11-19)"
 ---
 # ADR-005 배포 모델과 라벨 스냅숏
 
@@ -23,7 +23,7 @@ decider: "사령관(연구자 외출 중 전권 위임, 2026-11-19) — 연구�
 | 공개 식별자만, 학습 때 API 로 원문 다시 받기 | 원문을 저장하지 않는다 | 학습이 OpenAlex·KCI(키 필요) 호출에 의존, 재현성 떨어짐 |
 | **해싱 특징(글자 n-gram 위치·빈도)만** | 원문으로 되돌릴 수 없다. 학습이 오프라인·재현 가능. 서빙도 같은 해싱 함수 | 사람이 스냅숏을 읽어 검수할 수 없다(교사 JSONL 은 로컬에만) |
 
-## 결정 (잠정)
+## 결정
 
 - **예측 대상**: 논문(제목·초록) → `p(include)` — 주제 `coaching-leadership` 적합 확률. 라벨은 KMS 와 같은 임계값(include ≥ 0.7, exclude ≤ 0.3, 사이는 uncertain).
 - **교사**: KMS 판정기(`kms.judge.local.LocalJudge`, 프롬프트 v5, `qwen3:4b-instruct-2507-q4_K_M`)를 `labeler/teacher_label.py` 가 **읽기 전용으로 import** 해 호출한다. KMS 운영 DB 는 `mode=ro` 로만 열고, 판정 결과는 KMS DB 에 쓰지 않는다(ADR-004 범위 밖이므로).
