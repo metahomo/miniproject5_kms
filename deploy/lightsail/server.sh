@@ -47,6 +47,6 @@ case "${1:-}" in
     fi
     ;;
   status)
-    sed -E 's#^(LEDGER_DSN=[^:]+://[^:]+:)[^@]*@#\1***@#' .env; docker compose ps --format '{{.Service}} {{.Image}} {{.Status}}'; health ;;
+    sed -E -e 's#^(LEDGER_DSN=[^:]+://[^:]+:)[^@]*@#\1***@#' -e 's#^(API_TOKEN=).*#\1***#' .env; docker compose ps --format '{{.Service}} {{.Image}} {{.Status}}'; health ;;
   *) echo "사용: server.sh image|model|status" >&2; exit 2 ;;
 esac

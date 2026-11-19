@@ -79,7 +79,7 @@ jobs:
       - name: 서빙 이미지 빌드·실행
         run: |
           docker build -f api/Dockerfile -t paperclf-api:parity .
-          docker run -d -p 8083:8080 -v "$PWD/artifacts:/models/current:ro" paperclf-api:parity
+          docker run -d -p 8083:8080 -e RATE_LIMIT_PER_MIN=0 -v "$PWD/artifacts:/models/current:ro" paperclf-api:parity # parity 는 190번 부르므로 사용량 제한을 끈다
           for i in $(seq 1 60); do sleep 1; curl -sf localhost:8083/health | grep -q '"status":"ok"' && exit 0; done
           docker logs "$(docker ps -q | head -1)"; exit 1
       - name: 허용 오차 입력 검사

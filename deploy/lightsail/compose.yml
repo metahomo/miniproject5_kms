@@ -8,6 +8,8 @@ services:
     environment:
       MODEL_IMPL: onnx
       MODEL_DIR: ${MODEL_DIR:-/models/none}
+      API_TOKEN: ${API_TOKEN:-} # /predict 토큰(서버 .env 에만) — 비우면 인증 안 함
+      RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-60}
       LEDGER_DSN: ${LEDGER_DSN:-} # 예측 로그(ADR-009) — 서버 .env 에만, 비우면 기록 안 함
     volumes:
       - /srv/paperclf/models:/models:ro
