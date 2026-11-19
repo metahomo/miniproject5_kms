@@ -51,3 +51,4 @@ decider: "연구자(위임: 사령관 작성). 이슈 #14"
 - 작업용 서버 `/srv/ledger`(compose `paperclf-ledger`, postgres:18.7, `127.0.0.1:5433`), 접속 정보는 서버 `.env`(600)에만.
 - 백업: promote·rollback 직후 + systemd timer 매일 03:17 UTC → 버킷 `ledger/ledger-<시각>.sql.gz`, 최근 14개(`ledger.py backup`).
 - 복구 절차: [작업용 서버 런북](../runbooks/work-server.md) 장부 DB 절.
+- 복구 훈련(2026-11-19): 버킷 최신 덤프 → 임시 컨테이너 복원, 건수·운영 판·트리거가 운영과 같음. API 계정(`predictor`)은 복원 전에 만들어야 한다 — [작업용 서버 런북](../runbooks/work-server.md) 장부 DB 절.

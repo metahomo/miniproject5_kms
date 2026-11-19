@@ -114,4 +114,12 @@ IP 로 직접 오는 평문 HTTP(`http://54.252.22.31/`)는 응답하지 않는 
 
 기록은 워크플로가 한다: `model.yml` promote(실행·배포·백업), record-failure(게이트·parity 에서 멈춘 실행), `rollback.yml`(되돌리기·백업). 미통과 판의 배포 기록은 트리거가 거부한다(`ERROR: model … has not passed gate and parity`).
 
-복구: 버킷에서 덤프를 받아 `gunzip -c ledger-<시각>.sql.gz | docker exec -i paperclf-ledger psql -U ledger -d ledger` (빈 볼륨에서).
+복구 (빈 볼륨에서, 2026-11-19 훈련으로 확인):
+
+1. 버킷에서 덤프: `aws s3 cp s3://paperclf-models-apse2/ledger/ledger-<시각>.sql.gz /tmp/ --region ap-southeast-2`
+2. API 계정을 먼저 만든다(없으면 GRANT 3줄이 `role "predictor" does not exist` 로 실패): `docker exec -i paperclf-ledger psql -U ledger -d ledger -c 'CREATE ROLE predictor LOGIN'`
+3. 복원: `gunzip -c /tmp/ledger-<시각>.sql.gz | docker exec -i paperclf-ledger psql -U ledger -d ledger`
+4. API 계정 비밀번호를 `/srv/paperclf/.env` 의 `LEDGER_DSN` 과 같게: `ALTER ROLE predictor PASSWORD '…'` (값은 채팅·저장소에 쓰지 않는다)
+5. 확인: `python3 /srv/ledger/ledger.py status` 건수가 백업 시점과 같다
+
+훈련 결과(2026-11-19 14:06 UTC 덤프 → 임시 컨테이너): datasets 1 · model_versions 5 · deployments 5 · predictions 64 · 운영 판 m20261119-11 이 운영 DB 와 같았고, 복원한 DB 에서도 미통과 판 배포 기록을 트리거가 거부했다.
