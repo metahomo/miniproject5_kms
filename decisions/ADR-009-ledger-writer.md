@@ -45,3 +45,10 @@ decider: "연구자(위임: 사령관 작성). 이슈 #15"
 - 모델 카드에 **데이터 sha256 · `onnx_sha256` · `parity_max_diff`** 필드가 더 필요하다(장부 `datasets`·`model_versions` 칸을 채우려면). 이 ADR 에서는 코드를 고치지 않는다 — 별도 작업.
 - 게이트 실패 요약 artifact 와 "다음 promote 가 줍는" 단계도 별도 작업이다. artifact 보관 기간 안에 다음 promote 가 돌지 않으면 그 실패 이력은 빠질 수 있다.
 - `DEPLOY_ENABLED` 가 꺼져 있으면 `promote` 가 돌지 않으므로 장부에도 기록되지 않는다.
+
+## 구현 (2026-11-19, PR #26)
+
+- `deploy/lightsail/ledger/ledger.py` — 값은 psql 변수로만 넘긴다.
+- promote: 장부 run → 서버 교체 → health → 장부 deploy → `current.json` → 백업. 게이트·parity 에서 멈춘 실행은 새 잡 `record-failure` 가 같은 실행 안에서 기록한다("다음 promote 가 줍는" 방식 대신 — artifact 보관 기간 문제가 없다).
+- 스키마 v2(`db/init/002_failed_runs.sql`): 게이트 실패 실행은 `onnx_sha256` 없음 허용. 배포 기록 트리거는 그대로.
+- 예측 로그(`predictions`)를 API 가 쓰는 부분은 아직 하지 않았다.
