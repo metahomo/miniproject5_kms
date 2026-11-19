@@ -49,3 +49,12 @@ tags:
 3. 조감도 문서 표의 "푸시 대기" 목록을 GitHub 링크로 옮기기(푸시 뒤)
 4. 연구자 작성 칸: 개선점 이유·AI 활용 검수 방법·ADR 근거 — 연구자의 언어로
 5. 보류 결정: 저장소 공개/비공개(자체 러너 전), `main` 보호 규칙·squash, 마일스톤 마감일, KCI 엔드포인트 확인(활용가이드 PDF)
+
+## 2026-11-19 — Mac 서버 이전 후 자율 진행 (연구자 외출, 전권 위임)
+
+- 작업 환경을 Windows → Mac 서버 Studio-C 로 옮김. KMS 판정 모델 qwen3 4B, 지식베이스 `data/`(KMS `logs/changes/changes_261119.md`). 조감도(claude.ai 문서)는 이 세션에서 열리지 않아 보충 문안을 [보고서](./reports/2026-11-19-autonomous-progress.md)에 둠.
+- 칸반보드: 비어 있던 Projects #12 를 "miniproject5 Kanban Board" 로, 열 5개(Backlog → Todo → In Progress → Review → Done), 이슈 16 + PR 카드.
+- KMS 수집 867편(ADR-004 범위) → 교사 라벨 867편(include 641 · exclude 211 · uncertain 15, 스키마 위반 0) → 공개 스냅숏(원문 없음) — [ADR-005](./decisions/ADR-005-student-model-snapshot.md).
+- 학생 모델·게이트·ONNX·모델 카드·parity·서빙 API·Dockerfile·워크플로 3개 — [ADR-006](./decisions/ADR-006-gate-parity.md). 로컬 pytest 15 통과, 게이트 F1 0.9603, 5% 모델은 게이트 실패.
+- PR [#19](https://github.com/metahomo/miniproject5_kms/pull/19). 배포·승격·되돌리기 잡은 `vars.DEPLOY_ENABLED` 로 꺼 둠(서버 접근 수단 없음).
+- [AI 활용 기록](./ai-usage/2026-11-19-student-model-pipeline.md).
