@@ -61,7 +61,9 @@ requirement: R1
 
 | # | 단계 | 어디서 | 명령·화면 | 기대 결과 |
 |---|---|---|---|---|
-| 1 | 배포 멈추기·러너 지우기·장부 덤프 | PC·SSH·콘솔 | ①의 1~4단계를 그대로 한다. SSH 는 작업용 서버(`54.252.22.31`)로. 버킷이 지워지므로 덤프는 PC 에 둔다 | ①의 1~4단계 기대 결과와 같다 |
+| 1 | 배포 멈추기·러너 지우기 | PC·SSH | ①의 1~3단계를 그대로 한다. SSH 는 작업용 서버(`54.252.22.31`)로 | ①의 1~3단계 기대 결과와 같다 |
+| 1-1 | 장부 마지막 백업 → PC (2026-11-19 부터 장부는 서버 `/srv/ledger`) | SSH·PC | SSH: `python3 /srv/ledger/ledger.py backup` · `sudo systemctl disable --now paperclf-ledger-backup.timer`<br>SSH: `aws s3 cp --recursive s3://paperclf-models-apse2/ledger/ /tmp/ledger/`<br>PC: `scp -r ec2-user@54.252.22.31:/tmp/ledger ./ledger-backup` — 버킷은 3단계에서 사라지므로 **PC 에 남긴다** | PC `ledger-backup/` 에 `ledger-<시각>.sql.gz` 가 있고 `gunzip -c … \| head` 에 `CREATE TABLE` |
+| 1-2 | 장부 DB 내리기 | SSH | `cd /srv/ledger && docker compose down -v` | `docker ps --format '{{.Names}}' \| grep -c paperclf-ledger` → `0` |
 | 2 | Tailscale 기기 제거·인증 키 폐기 (설치했을 때만) | SSH + Tailscale 관리 화면 | SSH: `sudo tailscale logout`<br>관리 화면 → Machines → 작업용 서버 기기 → … → **Remove**. Settings → Keys → 서버 등록에 쓴 auth key → **Revoke** | 관리 화면 Machines 에 이 기기가 없고, Keys 에 살아 있는 키가 없다 |
 | 3 | 프로젝트 버킷 | Lightsail 콘솔 | 스토리지 → 프로젝트 버킷(`gh variable get MODEL_BUCKET -R metahomo/miniproject5_kms` 로 이름 확인) → 삭제 → **강제 삭제**(객체째) | 콘솔 스토리지가 빈 안내 |
 | 4 | 인스턴스 | Lightsail 콘솔 | 인스턴스 → `Amazon_Linux_2026_kms` → 삭제 → 확인 → **인스턴스 삭제** | 콘솔 인스턴스 화면이 빈 안내. PC: `curl -sS -m 5 http://54.252.22.31/` → 시간 초과 |
@@ -73,6 +75,8 @@ requirement: R1
 | 10 | IAM 정책 | IAM 콘솔 | 정책 → 필터 "고객 관리형" → `paperclf-lightsail` → **삭제** → 이름 입력 → 삭제. 사용자를 먼저 지워야 연결이 풀려 지워진다 | 고객 관리형 정책 목록에 `paperclf-lightsail` 이 없다 |
 
 조직 SCP 가 `ap-southeast-2`·`us-east-1` 외 리전을 막으므로, 확인할 리전은 이 둘뿐이다.
+
+저장소 쪽 덤으로 정리할 것(선택): 쓰지 않는 `gh-pages` 브랜치와 GitHub Pages(`gh api -X DELETE repos/metahomo/miniproject5_kms/pages`, `git push origin --delete gh-pages`), 연구자 PC 의 예약 작업 `birdseye-pull`(`schtasks /Delete /TN birdseye-pull /F`).
 
 ## 확인
 

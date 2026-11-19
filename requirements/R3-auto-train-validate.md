@@ -30,9 +30,9 @@ status: doing
 ## 완료 기준 (초안)
 
 - [x] 버킷(또는 저장소)의 데이터가 바뀌면 학습 워크플로가 사람 개입 없이 실행 — 저장소 `data/snapshots/**` 변경 push 로 `model` 자동 실행(아래 증거 2)
-- [x] 게이트 실패 시 승격되지 않고 운영 모델 그대로 — train 잡에서 멈추고 parity·promote 건너뜀(증거 1). 단 promote 는 `DEPLOY_ENABLED` 로도 꺼져 있어 서버 쪽 "운영 모델 그대로"는 서버 준비 뒤 다시 본다
-- [ ] parity 실패 시 승격되지 않음 — promote 가 parity 를 `needs` 로 참조하는 구조만 있고, parity 실패 시연은 아직 없다
-- [ ] 실행마다 [학습·검증 기록](../experiments/index.md)에 한 건 남김 — **미충족**. 색인 표가 비어 있다. 장부 기록은 서버 러너가 대행하기로 정함([ADR-009](../decisions/ADR-009-ledger-writer.md))
+- [x] 게이트 실패 시 승격되지 않고 운영 모델 그대로 — 배포를 켠 상태에서 F1 0.9021 → promote 건너뜀, 서버 판 그대로([https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566](https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566))
+- [x] parity 실패 시 승격되지 않음 — `parity_tol=1e-12` 로 parity 실패 → promote 건너뜀, 서버 m20261119-11 그대로([https://github.com/metahomo/miniproject5_kms/actions/runs/44519475156](https://github.com/metahomo/miniproject5_kms/actions/runs/44519475156))
+- [x] 실행마다 학습·검증 기록 한 건 — 운영 장부 DB `model_versions`(통과는 promote, 멈춘 실행은 record-failure 가 기록, [ADR-009](../decisions/ADR-009-ledger-writer.md), PR #26). 조회: 서버에서 `python3 /srv/ledger/ledger.py status`
 
 ## 검증 증거
 
@@ -47,5 +47,4 @@ status: doing
 - ~~모델·데이터셋 주제~~ → [ADR-005](../decisions/ADR-005-student-model-snapshot.md)
 - ~~게이트 지표·임계값, parity 허용 오차~~ → [ADR-006](../decisions/ADR-006-gate-parity.md)(시험지 확정: 교사 라벨 고정 20% 분할 178편)
 - ~~트리거 방식~~ → `model.yml`: `data/snapshots/**` 변경 push(자동)·PR(승격 없이 검사)·수동 실행
-- 실행마다 학습·검증 기록 1건(기준 4) — 서버 러너·장부 DB 가 서야 자동으로 남는다
-- parity 실패 시연(기준 3)
+- ~~실행마다 기록(기준 4)~~ · ~~parity 실패 시연(기준 3)~~ → 2026-11-19 완료

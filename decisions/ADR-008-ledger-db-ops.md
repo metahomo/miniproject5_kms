@@ -45,3 +45,9 @@ decider: "연구자(위임: 사령관 작성). 이슈 #14"
 - 운영용 compose 는 개발용과 포트(5433)·`.env` 위치가 다를 수 있다. 운영 파일은 배포 작업 때 만든다.
 - 장부에 누가 어떻게 쓰는지는 [ADR-009](./ADR-009-ledger-writer.md).
 - 복구 절차(덤프 → 새 컨테이너)는 런북으로 따로 남긴다.
+
+## 구현 (2026-11-19, PR #26)
+
+- 작업용 서버 `/srv/ledger`(compose `paperclf-ledger`, postgres:18.7, `127.0.0.1:5433`), 접속 정보는 서버 `.env`(600)에만.
+- 백업: promote·rollback 직후 + systemd timer 매일 03:17 UTC → 버킷 `ledger/ledger-<시각>.sql.gz`, 최근 14개(`ledger.py backup`).
+- 복구 절차: [작업용 서버 런북](../runbooks/work-server.md) 장부 DB 절.
