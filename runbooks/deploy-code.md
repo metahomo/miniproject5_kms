@@ -48,6 +48,7 @@ deploy 잡은 서버 러너에서 `server.sh image <태그> <이미지>` 를 돌
 
 - `/predict` 는 토큰이 있어야 한다: `Authorization: Bearer <토큰>`. 토큰은 서버 `/srv/paperclf/.env` 의 `API_TOKEN` 에만 있다(권한 600, 저장소·채팅에 두지 않는다). 비우면 인증을 끈다.
 - 사용량 제한: IP 하나당 1분에 `RATE_LIMIT_PER_MIN`(기본 60)번, 넘으면 `429` + `Retry-After`.
+- 원격 MCP `POST /mcp` 도 같은 토큰·제한(v0.1.4~). 시험: `curl -H "Authorization: Bearer $T" -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' https://54-252-22-31.sslip.io/mcp`
 - `/health`·`/model`·`/docs` 는 공개. `/health` 의 `guard` 에 거절 건수가 보인다.
 - 토큰 바꾸기: 서버에서 `.env` 의 `API_TOKEN` 을 새 값으로 → `cd /srv/paperclf && docker compose up -d`.
 - 시연 때 토큰 쓰기(서버 안에서): `T=$(grep ^API_TOKEN= /srv/paperclf/.env | cut -d= -f2); curl -fsS -H "Authorization: Bearer $T" -H 'content-type: application/json' -d '{"title":"…"}' localhost:8080/predict`

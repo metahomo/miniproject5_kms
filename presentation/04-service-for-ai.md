@@ -27,7 +27,7 @@ status: draft
 - **입력·출력 스키마 고정**: REST 는 pydantic 모델(`Paper` · `Prediction`)이 곧 OpenAPI 명세다. MCP 도구는 `inputSchema`·`outputSchema` 를 선언하고 `additionalProperties: false` 로 모르는 인자를 받지 않는다. 길이 한도는 두 쪽이 같다(title 1000자, abstract 20000자).
 - **모델 버전·확신도 표시**: 응답마다 `model_version` 을 실어 어떤 판이 답했는지 남긴다(롤백 뒤에도 추적 가능). 확신도는 `p_include` 확률 그대로 주고, MCP 는 `thresholds`(include ≥ 0.7, exclude ≤ 0.3 — `paperclf/labels.py`, KMS 와 같은 값)를 함께 줘서 AI 가 `uncertain` 구간을 스스로 해석하게 한다. 단, 이 확률은 교사(LLM)와의 일치를 배운 값이다(ADR-005·ADR-006).
 - **오류 형식**: MCP 는 인자 오류를 JSON-RPC 프로토콜 오류 `-32602`(Invalid params)로, 모델이 없을 때는 도구 결과 `isError: true` + `structuredContent.code = "no_model"` 로 돌려준다. 어떤 요청이 실패해도 프로세스는 다음 줄을 계속 읽는다. REST 는 입력 검증 실패 시 FastAPI 기본 422, 모델 없음은 503, `/health` 의 `status` 는 `ok`/`no_model`.
-- **인증·사용량 제한**: 지금은 없다. 공개 조건이던 HTTPS(ADR-003)는 켜졌고(`https://54-252-22-31.sslip.io`, Let's Encrypt), REST `/predict` 는 v0.1.3 부터 **토큰 인증**(`Authorization: Bearer`, 토큰은 서버 `.env` 에만)과 **IP 별 사용량 제한**(분당 60, 넘으면 `429` + `Retry-After`)을 거친다 — 실제 요청으로 401·200·429 확인(PR #30). `/health` 는 공개, 거절 건수가 보인다. 원격 MCP 는 아직 열지 않았다. 예측은 원문 없이 해시·길이·점수만 장부에 남는다(v0.1.2).
+- **인증·사용량 제한**: 지금은 없다. 공개 조건이던 HTTPS(ADR-003)는 켜졌고(`https://54-252-22-31.sslip.io`, Let's Encrypt), REST `/predict` 는 v0.1.3 부터 **토큰 인증**(`Authorization: Bearer`, 토큰은 서버 `.env` 에만)과 **IP 별 사용량 제한**(분당 60, 넘으면 `429` + `Retry-After`)을 거친다 — 실제 요청으로 401·200·429 확인(PR #30). `/health` 는 공개, 거절 건수가 보인다. 원격 MCP 도 v0.1.4 부터 같은 보호 뒤에 연다 — `POST /mcp`(JSON-RPC 2.0, JSON 응답 방식, 도구 `classify_paper`, 처리는 표준 입출력 판과 같은 `handle`). 예측은 원문 없이 해시·길이·점수만 장부에 남는다(v0.1.2).
 
 ## 슬라이드 원고
 
