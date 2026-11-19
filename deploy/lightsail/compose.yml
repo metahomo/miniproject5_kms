@@ -8,5 +8,12 @@ services:
     environment:
       MODEL_IMPL: onnx
       MODEL_DIR: ${MODEL_DIR:-/models/none}
+      LEDGER_DSN: ${LEDGER_DSN:-} # 예측 로그(ADR-009) — 서버 .env 에만, 비우면 기록 안 함
     volumes:
       - /srv/paperclf/models:/models:ro
+    networks: [default, ledger]
+
+networks:
+  ledger: # 장부 DB(paperclf-ledger)와 같은 도커 네트워크 — 서버에서 한 번 `docker network create paperclf-ledger-net`
+    external: true
+    name: paperclf-ledger-net
