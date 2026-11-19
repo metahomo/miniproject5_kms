@@ -128,3 +128,26 @@ def test_stdio_subprocess(model_dir):
     assert out[0]["result"]["serverInfo"]["name"] == "paperclf"
     res = out[1]["result"]
     assert res["isError"] is False and res["structuredContent"]["model_version"] == "m20261119-7"
+
+
+def test_remote_mcp_http(mcp, monkeypatch):
+    """원격 MCP(POST /mcp): 토큰이 있어야 하고, 표준 입출력 판과 같은 답을 한다."""
+    import api.app as app_module
+
+    monkeypatch.setenv("API_TOKEN", "t0ken")
+    app_module.GUARD = app_module.Guard()
+    c = TestClient(app_module.app)
+    assert c.post("/mcp", json=_rpc("tools/list")).status_code == 401
+    h = {"Authorization": "Bearer t0ken"}
+    init = c.post("/mcp", json=_rpc("initialize", {"protocolVersion": "2025-06-18"}), headers=h).json()
+    assert init["result"]["capabilities"] == {"tools": {}}
+    assert c.post("/mcp", json={"jsonrpc": "2.0", "method": "notifications/initialized"}, headers=h).status_code == 202
+    tools = c.post("/mcp", json=_rpc("tools/list"), headers=h).json()["result"]["tools"]
+    assert [t["name"] for t in tools] == ["classify_paper"]
+    r = c.post("/mcp", json=_rpc("tools/call", {"name": "classify_paper", "arguments": PAPER}), headers=h).json()["result"]
+    assert r["structuredContent"]["model_version"] == "m20261119-7"
+    p = c.post("/predict", json=PAPER, headers=h).json()
+    assert abs(r["structuredContent"]["p_include"] - p["p_include"]) < 1e-12
+    assert c.post("/mcp", content=b"{not json", headers={**h, "content-type": "application/json"}).status_code == 400
+    assert c.get("/mcp").status_code == 405
+

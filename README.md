@@ -59,6 +59,7 @@ MODEL_DIR=artifacts uv run uvicorn api.app:app --port 8080   # 로컬 서빙
 - `GET /health` — 상태, app·model 판, 보호·예측 로그 건수(공개)
 - `POST /predict` — `{"title": …, "abstract": …}` → `p_include` · `label`(include/exclude/uncertain) · `model_version`. `Authorization: Bearer <토큰>` 필요, IP 하나당 분당 60번
 - `GET /model` — 운영 모델 카드
+- `POST /mcp` — 원격 MCP(JSON-RPC 2.0, 도구 `classify_paper`). `/predict` 와 같은 토큰·사용량 제한. 표준 입출력 판은 `uv run python -m api.mcp_server`
 
 토큰·DB 비밀번호는 서버 `.env` 에만 있고 저장소에는 없다. 예측 입력 원문은 저장하지 않는다(해시·길이·점수만).
 

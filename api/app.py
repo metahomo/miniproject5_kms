@@ -15,6 +15,7 @@ from pathlib import Path
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field, model_validator
 
 from paperclf.features import FEATURE_VERSION, N_FEATURES, to_dense, vectorize
@@ -116,3 +117,29 @@ def model_card() -> dict:
     if MODEL.card is None:
         raise HTTPException(status_code=404, detail="모델 카드가 없다")
     return MODEL.card
+
+
+@app.post("/mcp")
+async def mcp_http(request: Request):
+    """원격 MCP(Streamable HTTP 의 JSON 응답 방식) — 도구 classify_paper. /predict 와 같은 토큰·사용량 제한.
+
+    요청 하나(JSON-RPC 2.0)를 받아 응답 하나를 JSON 으로 돌려준다. 알림(id 없음)은 202.
+    처리는 표준 입출력 판과 같은 api.mcp_server.handle 을 쓴다.
+    """
+    GUARD.check(request)
+    from api import mcp_server  # 순환 import 를 피해 호출 때 읽는다
+
+    try:
+        message = await request.json()
+    except Exception:
+        return JSONResponse(mcp_server._error(None, -32700, "Parse error"), status_code=400)
+    reply = mcp_server.handle(message)
+    if reply is None:
+        return Response(status_code=202)
+    return JSONResponse(reply)
+
+
+@app.get("/mcp")
+def mcp_http_get() -> Response:
+    return Response(status_code=405, headers={"Allow": "POST"})  # 서버 → 클라이언트 스트림(SSE)은 쓰지 않는다
+
