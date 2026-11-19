@@ -40,4 +40,5 @@ status: todo
 
 ## 미해결
 
-- 인스턴스 요금제·리전·버킷 이름 — [결정 기록](../decisions/index.md)에 남기기
+- ~~인스턴스 요금제·리전~~ → 시드니 `ap-southeast-2`, 기존 인스턴스·요금제 그대로 — [ADR-007](../decisions/ADR-007-region-instance.md). 요금제 메모리(GB)는 미확인(콘솔 확인 필요)
+- 버킷 이름 — 제안 `paperclf-models-apse2`(미생성) — [ADR-007](../decisions/ADR-007-region-instance.md)

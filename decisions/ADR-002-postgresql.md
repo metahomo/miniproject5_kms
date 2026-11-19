@@ -27,7 +27,7 @@ decider: "연구자(지시: PostgreSQL 로 생성)"
 PostgreSQL 18 을 **장부**로 쓴다. 설계는 [데이터 모델](../architecture/data-model.md).
 
 - 개발: 내 PC Docker, `127.0.0.1:5433` (이미 다른 PostgreSQL 이 5432 를 쓴다).
-- 운영: 미정 — 권장안은 같은 Lightsail 인스턴스의 compose 컨테이너 + 버킷으로 정기 백업.
+- 운영: 같은 Lightsail 인스턴스의 compose 컨테이너 + 버킷으로 정기 백업 → [ADR-008](./ADR-008-ledger-db-ops.md).
 
 ## 근거 (연구자의 언어로 채울 칸)
 

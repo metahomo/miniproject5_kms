@@ -19,8 +19,7 @@ tags:
 
 ## 2. 문서 규칙
 
-- 이 폴더의 마크다운은 OpenKnowledge MCP 도구(`exec`·`write`·`edit`)로만 읽고 쓴다.
-- 새 문서는 폴더 템플릿으로 만든다(표는 [홈](./index.md#폴더)). 모든 문서는 `title`·`description`·`tags` frontmatter 를 갖는다.
+- 새 문서는 [`templates/`](./templates/)의 폴더별 템플릿을 복사해 만든다(표는 [홈](./index.md#폴더)). 모든 문서는 `title`·`description`·`tags` frontmatter 를 갖는다.
 - 다른 문서를 가리키는 말은 상대 경로 링크로 건다. 쓰고 나면 끊긴 링크를 확인한다.
 - 강의 내용은 [강의 자료 색인](./sources/lecture-index.md)의 파일·절을 밝혀 인용한다.
 

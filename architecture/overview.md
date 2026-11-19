@@ -49,6 +49,8 @@ flowchart LR
 
 서버: `nlpwizard.eta.pyhub.kr` (`13.237.237.56`) — [ADR-003](../decisions/ADR-003-domain-server.md).
 
+리전: 시드니 `ap-southeast-2`, 버킷도 같은 리전 — [ADR-007](../decisions/ADR-007-region-instance.md).
+
 [R1 Lightsail](../requirements/R1-lightsail.md). 런북: [자원 정리](../runbooks/teardown.md).
 
 ## 구현 (2026-11-19, PR [#19](https://github.com/metahomo/miniproject5_kms/pull/19))
@@ -75,5 +77,5 @@ flowchart LR
 
 ## 미해결
 
-- 서버 접근(SSH 키)·버킷(AWS) — 배포·승격·되돌리기 잡은 저장소 변수 `DEPLOY_ENABLED` 로 꺼 둠
-- 예측 로그를 장부 DB 에 남기는 방법 — [#15](https://github.com/metahomo/miniproject5_kms/issues/15)
+- 서버 접근·버킷 — 연구자 외부 준비 대기(SSH 키 등록·AWS 액세스 키). 그때까지 배포·승격·되돌리기 잡은 저장소 변수 `DEPLOY_ENABLED` 로 꺼 둠
+- ~~예측 로그를 장부 DB 에 남기는 방법~~ → API 가 localhost 로 직접 — [ADR-009](../decisions/ADR-009-ledger-writer.md)

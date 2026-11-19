@@ -22,6 +22,8 @@ status: todo
 
 [아키텍처 개요](../architecture/overview.md#모델-판) — 승격 포인터와 API 서버의 모델 적재.
 
+AI 에게도 같은 모델 제공: MCP 도구 `classify_paper`(`api/mcp_server.py`, 로컬 stdio, 테스트 `tests/test_mcp.py`).
+
 ## 완료 기준 (초안)
 
 - [ ] 승격된 모델 버전이 버킷에 기록되고 API 서버가 그 버전을 적재
@@ -36,4 +38,5 @@ status: todo
 
 ## 미해결
 
-- 모델 형식(pickle/ONNX), 교체 방식(재시작/핫 리로드)
+- ~~모델 형식(pickle/ONNX)~~ → ONNX — [ADR-005](../decisions/ADR-005-student-model-snapshot.md)
+- 교체 방식(재시작/핫 리로드)

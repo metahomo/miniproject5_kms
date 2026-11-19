@@ -6,7 +6,7 @@ tags:
   - training
   - validation
 id: R3
-status: todo
+status: doing
 ---
 # R3 새 데이터 자동 학습·모델 검증
 
@@ -29,16 +29,23 @@ status: todo
 
 ## 완료 기준 (초안)
 
-- [ ] 버킷(또는 저장소)의 데이터가 바뀌면 학습 워크플로가 사람 개입 없이 실행
-- [ ] 게이트 실패 시 승격되지 않고 운영 모델 그대로
-- [ ] parity 실패 시 승격되지 않음
-- [ ] 실행마다 [학습·검증 기록](../experiments/index.md)에 한 건 남김
+- [x] 버킷(또는 저장소)의 데이터가 바뀌면 학습 워크플로가 사람 개입 없이 실행 — 저장소 `data/snapshots/**` 변경 push 로 `model` 자동 실행(아래 증거 2)
+- [x] 게이트 실패 시 승격되지 않고 운영 모델 그대로 — train 잡에서 멈추고 parity·promote 건너뜀(증거 1). 단 promote 는 `DEPLOY_ENABLED` 로도 꺼져 있어 서버 쪽 "운영 모델 그대로"는 서버 준비 뒤 다시 본다
+- [ ] parity 실패 시 승격되지 않음 — promote 가 parity 를 `needs` 로 참조하는 구조만 있고, parity 실패 시연은 아직 없다
+- [ ] 실행마다 [학습·검증 기록](../experiments/index.md)에 한 건 남김 — **미충족**. 색인 표가 비어 있다. 장부 기록은 서버 러너가 대행하기로 정함([ADR-009](../decisions/ADR-009-ledger-writer.md))
 
 ## 검증 증거
 
 | 날짜 | 무엇을 확인 | 결과 | 증거 |
 |---|---|---|---|
+| 2026-11-19 | 일부러 낮춘 모델(`data_fraction=0.05`, 수동 실행)이 게이트에서 멈추는가 | F1 0.9021 → 게이트 실패, parity·promote 건너뜀 | [model 실행 44452096551](https://github.com/metahomo/miniproject5_kms/actions/runs/44452096551) |
+| 2026-11-19 | 데이터(스냅숏) 변경 push 로 자동 학습, 정상 모델 게이트·parity | 자동 실행(main push), F1 0.9603 통과, parity 최대 차이 5.8e-7(허용 1e-5) 통과. promote 는 서버 대기로 건너뜀 | [model 실행 44451897410](https://github.com/metahomo/miniproject5_kms/actions/runs/44451897410) |
+| 2026-11-19 | 서빙 이미지 태그 배포(R4 와 공유) | `v0.1.0` 태그 → test·image 통과, GHCR `paperclf-api:v0.1.0` 공개. deploy 는 서버 대기로 건너뜀 | [ci 실행 44453216170](https://github.com/metahomo/miniproject5_kms/actions/runs/44453216170) |
 
 ## 미해결
 
-- 모델·데이터셋 주제, 게이트 지표·임계값, parity 허용 오차, 트리거 방식
+- ~~모델·데이터셋 주제~~ → [ADR-005](../decisions/ADR-005-student-model-snapshot.md)
+- ~~게이트 지표·임계값, parity 허용 오차~~ → [ADR-006](../decisions/ADR-006-gate-parity.md)(시험지 확정: 교사 라벨 고정 20% 분할 178편)
+- ~~트리거 방식~~ → `model.yml`: `data/snapshots/**` 변경 push(자동)·PR(승격 없이 검사)·수동 실행
+- 실행마다 학습·검증 기록 1건(기준 4) — 서버 러너·장부 DB 가 서야 자동으로 남는다
+- parity 실패 시연(기준 3)

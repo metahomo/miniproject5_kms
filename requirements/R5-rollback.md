@@ -36,3 +36,4 @@ status: todo
 ## 미해결
 
 - 버전 이력을 몇 개까지 보관할지
+- 코드(이미지) 되돌리기 워크플로가 아직 없다 — 모델 되돌리기만 `.github/workflows/rollback.yml` 이 있다

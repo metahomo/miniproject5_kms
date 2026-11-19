@@ -33,7 +33,8 @@ status: todo
 
 | 날짜 | 무엇을 확인 | 결과 | 증거 |
 |---|---|---|---|
+| 2026-11-19 | `v0.1.0` 태그 실행(ci.yml) | test ✓ · image ✓ · deploy 건너뜀(`DEPLOY_ENABLED` 꺼짐) | [실행 44453216170](https://github.com/metahomo/miniproject5_kms/actions/runs/44453216170), 이미지 `ghcr.io/metahomo/miniproject5_kms/paperclf-api:v0.1.0` |
 
 ## 미해결
 
-- 배포 방식(GitHub 러너 + SSH / 자체 호스팅 러너) 선택
+- ~~배포 방식(GitHub 러너 + SSH / 자체 호스팅 러너) 선택~~ → self-hosted 러너(`deploy/lightsail/bootstrap.sh` ④, `.github/workflows/ci.yml` `deploy` 잡) — [ADR-009](../decisions/ADR-009-ledger-writer.md)
