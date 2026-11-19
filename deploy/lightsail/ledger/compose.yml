@@ -1,0 +1,23 @@
+# 운영 장부 DB — 작업용 서버 /srv/ledger (ADR-008: 같은 인스턴스의 compose, 127.0.0.1 에만)
+# 스키마는 db/init/*.sql 을 /srv/ledger/init 에 복사해 둔다 (볼륨이 빌 때 처음 한 번만 실행)
+# 접속 정보는 서버의 /srv/ledger/.env (권한 600, 저장소에 두지 않는다): POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, BUCKET, AWS_REGION
+services:
+  db:
+    image: postgres:18.7
+    container_name: paperclf-ledger
+    env_file: .env
+    ports:
+      - "127.0.0.1:5433:5432" # 밖에는 열지 않는다 — 기록은 서버 러너가 docker exec 로 한다(ADR-009)
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    mem_limit: 256m
+
+volumes:
+  pgdata:
