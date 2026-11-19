@@ -27,7 +27,7 @@ status: draft
 - **입력·출력 스키마 고정**: REST 는 pydantic 모델(`Paper` · `Prediction`)이 곧 OpenAPI 명세다. MCP 도구는 `inputSchema`·`outputSchema` 를 선언하고 `additionalProperties: false` 로 모르는 인자를 받지 않는다. 길이 한도는 두 쪽이 같다(title 1000자, abstract 20000자).
 - **모델 버전·확신도 표시**: 응답마다 `model_version` 을 실어 어떤 판이 답했는지 남긴다(롤백 뒤에도 추적 가능). 확신도는 `p_include` 확률 그대로 주고, MCP 는 `thresholds`(include ≥ 0.7, exclude ≤ 0.3 — `paperclf/labels.py`, KMS 와 같은 값)를 함께 줘서 AI 가 `uncertain` 구간을 스스로 해석하게 한다. 단, 이 확률은 교사(LLM)와의 일치를 배운 값이다(ADR-005·ADR-006).
 - **오류 형식**: MCP 는 인자 오류를 JSON-RPC 프로토콜 오류 `-32602`(Invalid params)로, 모델이 없을 때는 도구 결과 `isError: true` + `structuredContent.code = "no_model"` 로 돌려준다. 어떤 요청이 실패해도 프로세스는 다음 줄을 계속 읽는다. REST 는 입력 검증 실패 시 FastAPI 기본 422, 모델 없음은 503, `/health` 의 `status` 는 `ok`/`no_model`.
-- **인증·사용량 제한**: 지금은 없다. 공개 조건이던 HTTPS(ADR-003)는 켜졌고(`https://54-252-22-31.sslip.io`, Let's Encrypt), REST `/predict` 는 지금 **인증 없이 밖에서 닿는다**. 토큰 인증과 사용량 제한은 아직 없고(방식 미정), 원격 MCP 는 그 뒤에 연다. 예측은 원문 없이 해시·길이·점수만 장부에 남는다(v0.1.2).
+- **인증·사용량 제한**: 지금은 없다. 공개 조건이던 HTTPS(ADR-003)는 켜졌고(`https://54-252-22-31.sslip.io`, Let's Encrypt), REST `/predict` 는 v0.1.3 부터 **토큰 인증**(`Authorization: Bearer`, 토큰은 서버 `.env` 에만)과 **IP 별 사용량 제한**(분당 60, 넘으면 `429` + `Retry-After`)을 거친다 — 실제 요청으로 401·200·429 확인(PR #30). `/health` 는 공개, 거절 건수가 보인다. 원격 MCP 는 아직 열지 않았다. 예측은 원문 없이 해시·길이·점수만 장부에 남는다(v0.1.2).
 
 ## 슬라이드 원고
 
@@ -48,4 +48,4 @@ status: draft
 | AI 가 확률을 잘못 믿으면? | 확률만이 아니라 `label` 과 `thresholds` 를 같이 줘서 0.3~0.7 은 `uncertain` 으로 드러난다. `model_version` 으로 어떤 판의 답인지도 남는다. 다만 이 확률은 교사(LLM) 판정과의 일치를 배운 값이다 | `paperclf/labels.py`, ADR-005·ADR-006 |
 | LLM 교사를 직접 MCP 로 내면 더 정확하지 않나? | 서빙할 Lightsail 에 GPU 가 없다. 비싼 판단은 PC 에서 한 번 하고, 배운 학생 모델(F1 0.9603)을 싸게 서빙하는 것이 이 프로젝트의 구조다 | ADR-005, 03 개선점 #8 |
 | KMS 의 MCP 와는 어떤 관계인가? | KMS 본체 MCP 는 지식베이스 질의 도구 5개(`ask_kms`·`search_works`·`get_work`·`list_topics`·`get_topic_journals`)를 stdio 로 낸다. 이번 서버는 판정 도구 하나지만 같은 구조(한 줄 JSON-RPC, 표준 출력에는 프로토콜만, 실패해도 계속 읽기)를 따랐다. 타당성 보고서도 KMS 의 MCP 경험을 이 절에 쓸 강점으로 꼽았다 | `~/miniproject-kms/kms/mcp/`, [KMS 활용 타당성 보고서](../reports/2026-11-18-kms-feasibility.md) 3절 |
-| 남용·비용은 어떻게 막나? | 아직 막는 장치가 없다 — REST 는 HTTPS 로 열려 있고 인증·사용량 제한이 없다. 토큰 인증과 사용량 제한(Caddy 앞단 등)을 붙일 일로 남겼다 — 방식은 아직 정하지 않았다. 예측 로그로 누가 얼마나 부르는지는 볼 수 있다 | ADR-003, 이 문서 "설계 고려" |
+| 남용·비용은 어떻게 막나? | 토큰 인증과 IP 별 분당 60회 제한(API 안, `api/guard.py`). 기본 Caddy 에는 사용량 제한 모듈이 없어 API 에 넣었다. 예측 로그로 얼마나 불렸는지 장부에서 본다 | PR #30, `runbooks/deploy-code.md`, ADR-003 |

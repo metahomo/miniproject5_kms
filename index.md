@@ -14,11 +14,11 @@ tags:
 
 | # | 기능 | 상태 | 런북 |
 |---|---|---|---|
-| R1 | [Lightsail 인스턴스·버킷 활용](./requirements/R1-lightsail.md) | blocked — 서버 SSH 키·AWS 자격 증명 없음. 리전 시드니 `ap-southeast-2` 확정([ADR-007](./decisions/ADR-007-region-instance.md)), 서버 /health 는 아직 eta | [자원 정리](./runbooks/teardown.md) |
-| R2 | [GitHub CI/CD — 테스트를 거쳐 서버까지](./requirements/R2-cicd.md) | doing — ci.yml 시험·이미지 완료, `v0.1.0` 태그 → GHCR `paperclf-api:v0.1.0` 공개, 서버 배포 대기(러너 미설치) | [코드 배포](./runbooks/deploy-code.md) |
-| R3 | [새 데이터 자동 학습·검증(게이트·parity)](./requirements/R3-auto-train-validate.md) | doing — 게이트·자동 학습 시연 완료(약한 모델 F1 0.9021 실패, 데이터 변경 push 로 자동 학습 F1 0.9603·parity 5.8e-7), 실행별 기록 남음 | [모델 승격](./runbooks/promote-model.md) |
-| R4 | [통과 모델 API 서버 배포](./requirements/R4-model-serving.md) | doing — API·이미지(`v0.1.0`) 완료, 승격 잡은 서버 대기. 예측 로그는 API 가 localhost 로([ADR-009](./decisions/ADR-009-ledger-writer.md)) | [모델 승격](./runbooks/promote-model.md) |
-| R5 | [롤백 지원](./requirements/R5-rollback.md) | doing — rollback.yml·server.sh 작성, 서버·버킷 대기. DB 백업 14개 보관([ADR-008](./decisions/ADR-008-ledger-db-ops.md)) | [롤백](./runbooks/rollback.md) |
+| R1 | [Lightsail 인스턴스·버킷 활용](./requirements/R1-lightsail.md) | doing — 인스턴스·고정 IP 54.252.22.31·버킷 `paperclf-models-apse2` 완료, 22번 닫기와 자원 정리 실행(마감 때) 남음. 리전 시드니([ADR-007](./decisions/ADR-007-region-instance.md)) | [자원 정리](./runbooks/teardown.md) |
+| R2 | [GitHub CI/CD — 테스트를 거쳐 서버까지](./requirements/R2-cicd.md) | done — v0.1.1 태그 → test·image·deploy, HTTPS `/health` 확인(2026-11-19), 이후 v0.1.3 까지 같은 길로 배포 | [코드 배포](./runbooks/deploy-code.md) |
+| R3 | [새 데이터 자동 학습·검증(게이트·parity)](./requirements/R3-auto-train-validate.md) | done — 자동 학습·게이트·parity 실패 차단, 실행마다 운영 장부 기록([학습·검증 기록](./experiments/index.md)) | [모델 승격](./runbooks/promote-model.md) |
+| R4 | [통과 모델 API 서버 배포](./requirements/R4-model-serving.md) | done — 승격 m20261119-7·-8·-11(지금 운영), 미통과(F1·parity) 차단 확인. 예측 로그는 API 가 localhost 로([ADR-009](./decisions/ADR-009-ledger-writer.md)) | [모델 승격](./runbooks/promote-model.md) |
+| R5 | [롤백 지원](./requirements/R5-rollback.md) | done — 모델 →7→8, 코드 v0.1.0→v0.1.1 되돌리기·다시 앞으로 확인(2026-11-19). DB 백업 14개 보관([ADR-008](./decisions/ADR-008-ledger-db-ops.md)) | [롤백](./runbooks/rollback.md) |
 
 ## 폴더
 
