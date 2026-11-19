@@ -58,3 +58,13 @@ tags:
 - 학생 모델·게이트·ONNX·모델 카드·parity·서빙 API·Dockerfile·워크플로 3개 — [ADR-006](./decisions/ADR-006-gate-parity.md). 로컬 pytest 15 통과, 게이트 F1 0.9603, 5% 모델은 게이트 실패.
 - PR [#19](https://github.com/metahomo/miniproject5_kms/pull/19). 배포·승격·되돌리기 잡은 `vars.DEPLOY_ENABLED` 로 꺼 둠(서버 접근 수단 없음).
 - [AI 활용 기록](./ai-usage/2026-11-19-student-model-pipeline.md).
+
+## 2026-11-19 오후 — 진행판 정리와 연구자 위임 작업
+
+- 연구자 지시: "모든 수행을 멀티로, 필요하면 모든 부관 파견, 토큰 걱정 없음", "연구자가 해야 할 일도 바로 해줘 — 중단되지 않도록". 부관 6명 병렬 조사 → 사령관이 명령으로 재확인 → 이슈 닫기·결정 확정·문서 병렬 작성 — [AI 활용 기록](./ai-usage/2026-11-19-board-and-delegation.md).
+- 이슈 #6(0 준비)·#7(1 코드 판)·#9(3 모델 판) 문 통과로 닫고 보드 Done. #3(R3)은 진행 댓글만 — 기준 4(실행마다 기록 1건) 미충족.
+- 증거: [약한 모델 게이트 실패 F1 0.9021](https://github.com/metahomo/miniproject5_kms/actions/runs/44452096551), [정상 F1 0.9603 · parity 5.8e-7](https://github.com/metahomo/miniproject5_kms/actions/runs/44451897410), [v0.1.0 태그 → GHCR `paperclf-api:v0.1.0`](https://github.com/metahomo/miniproject5_kms/actions/runs/44453216170).
+- 결정 #14 · #15 · #16 권장안 확정 → [ADR-007](./decisions/ADR-007-region-instance.md)(리전 시드니 `ap-southeast-2`) · [ADR-008](./decisions/ADR-008-ledger-db-ops.md)(운영 DB 서버 compose, `pg_dump` → 버킷 매일 + 승격·롤백 직후, 14개 보관) · [ADR-009](./decisions/ADR-009-ledger-writer.md)(장부 기록은 서버 러너 대행, 예측 로그는 API 가 localhost) — [결정 색인](./decisions/index.md).
+- 서버 13.237.237.56: `/health` 는 여전히 eta(app_version v2.4), https 연결 실패, Caddy·러너 미설치, 저장소 변수 0개. 이 Mac 에 서버 SSH 키·AWS 자격 증명 없음 → 2·4단계 대기.
+- 발표 보조 슬라이드 17장([공개](https://metahomo.github.io/md-slides/miniproject5-kms/)), claude.ai 페이지(비공개). 오전에 OpenKnowledge 제거, 템플릿은 [`templates/`](./templates/) 로.
+- 문서 갱신: [보고서](./reports/2026-11-19-autonomous-progress.md) 2·6·7절, [R3](./requirements/R3-auto-train-validate.md)(doing, 검증 증거 3건), [홈](./index.md) R1~R5 표, AI 활용 기록 7건의 "사람이 정한 것"(연구자 위임 초안).

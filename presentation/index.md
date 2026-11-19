@@ -8,6 +8,8 @@ tags:
 
 **발표는 별도 자료 없이 조감도 문서(claude.ai "미니 프로젝트 5 조감도")로 한다(2026-11-18 연구자 결정).** 조감도의 "발표 순서" 절이 아래 4절을 어느 절에서 채우는지 안내한다. 이 폴더의 문서는 그 근거·초안이다.
 
+**보조 슬라이드(공개)**: [metahomo.github.io/md-slides/miniproject5-kms](https://metahomo.github.io/md-slides/miniproject5-kms/) — 아래 4절을 17장으로 옮긴 것(2026-11-19). 원본은 [metahomo/md-slides](https://github.com/metahomo/md-slides)의 `decks/miniproject5-kms.md`이고, `main`에 push하면 사이트에 반영된다.
+
 요구사항 원문: [과제 브리프](../sources/project-brief.md#발표에-반드시-담을-것). 각 절은 `slide-section` 템플릿을 따른다.
 
 | 순서 | 절 | 구분 | 상태 |

@@ -4,7 +4,7 @@ description: 과제 브리프와 강의 목차로 프로젝트 문서 골격을 
 tags:
   - ai-usage
 date: 2026-11-18
-tool: Claude Code + OpenKnowledge
+tool: Claude Code
 mode: delegate
 ---
 # AI 활용 — 지식 베이스 골격 만들기
@@ -16,7 +16,7 @@ mode: delegate
 ## 사람이 정한 것 (주도)
 
 - 과제 브리프와 강의 자료 위치를 입력으로 줌.
-- 검수 기준: (사용자가 채울 것)
+- 검수 기준: 미확인 — 이 기록에 사령관 검수 방법이 남아 있지 않다(아래 표의 확인 방법 칸이 비어 있음) (연구자 위임 초안)
 
 ## AI에게 맡긴 것
 

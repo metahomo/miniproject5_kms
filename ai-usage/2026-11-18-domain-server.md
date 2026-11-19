@@ -17,7 +17,7 @@ mode: review
 ## 사람이 정한 것 (주도)
 
 - 연구자 지시: 도메인 `nlpwizard.eta.pyhub.kr`, 서버 `13.237.237.56` — [ADR-003](../decisions/ADR-003-domain-server.md)
-- 검수 기준: (연구자가 채울 것)
+- 검수 기준: DNS A 레코드가 지정 서버와 같고, HTTP·HTTPS 응답을 `nslookup`·`curl` 출력으로 확인한다(아래 표의 사령관 확인 방법). 서버 설정은 바꾸지 않는다 (연구자 위임 초안)
 
 ## AI에게 맡긴 것
 

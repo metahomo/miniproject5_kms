@@ -24,7 +24,7 @@ requirements:
 | 서버가 올릴 판 | 버킷 `current.json` | DB `deployments` 에 같은 사건을 기록 |
 | 이력·지표·예측 로그 | DB | 버킷에는 없음(백업 덤프만) |
 
-순서 규칙: 승격·롤백은 ① 서버 교체 → ② `/health` 확인 → ③ DB `deployments` 기록 → ④ 버킷 `current.json` 마지막. 중간에 실패하면 `current.json` 은 이전 판 그대로다.
+순서 규칙: 승격은 ⓪ DB `datasets`·`model_versions` 기록 → ① 서버 교체 → ② `/health` 확인 → ③ DB `deployments` 기록 → ④ 버킷 `current.json` 마지막(⓪ 은 [ADR-009](../decisions/ADR-009-ledger-writer.md), 롤백은 ①부터). 중간에 실패하면 `current.json` 은 이전 판 그대로다.
 
 ## 구성도
 
@@ -81,10 +81,10 @@ erDiagram
 
 - 스키마 파일: `db/init/001_schema.sql` (컨테이너 최초 기동 때 자동 실행)
 - 개발 실행: `db/compose.yml`, 접속 정보는 `db/.env`(git 제외) — 예시는 `db/.env.example`
-- 쓰는 쪽: 학습 잡(datasets · model_versions), 승격·롤백 잡(deployments), API(predictions)
+- 쓰는 쪽: 서버 self-hosted 러너의 `promote` 잡(datasets · model_versions — 학습 잡의 모델 카드를 받아 기록), 승격·롤백 잡(deployments), API(predictions, localhost) — [ADR-009](../decisions/ADR-009-ledger-writer.md)
 
 ## 미해결
 
-- 운영 DB 위치(같은 인스턴스 compose / Lightsail 관리형)와 백업 주기
-- GitHub 호스팅 runner(학습 잡)가 DB 에 어떻게 쓸지 — 외부에 DB 를 열지 않으려면 서버 안 runner 가 모델 카드를 받아 대신 기록하는 방식이 후보
+- ~~운영 DB 위치(같은 인스턴스 compose / Lightsail 관리형)와 백업 주기~~ → 같은 인스턴스 compose, pg_dump 매일 1회·승격·롤백 직후 — [ADR-008](../decisions/ADR-008-ledger-db-ops.md)
+- ~~GitHub 호스팅 runner(학습 잡)가 DB 에 어떻게 쓸지~~ → 서버 runner 의 `promote` 잡이 모델 카드를 받아 기록 — [ADR-009](../decisions/ADR-009-ledger-writer.md)
 - 예측 로그 보관 기간
