@@ -24,11 +24,19 @@ jobs:
       - run: cp deploy/lightsail/compose.yml deploy/lightsail/server.sh /srv/paperclf/
       - name: 판 이름 검사
         run: '[[ $VER =~ ^m[0-9]{8}-[0-9]+$ ]] || { echo "모델 판 형식이 아니다: $VER" >&2; exit 1; }'
+      - name: 지금 판 (장부의 직전 판)
+        run: |
+          PREV=$(aws s3 cp "s3://$BUCKET/models/current.json" - 2>/dev/null | python3 -c 'import sys, json; print(json.load(sys.stdin)["model_version"])' || echo -)
+          echo "PREV=$PREV" >> "$GITHUB_ENV"
       - name: 버킷에서 받아 그 판으로 띄우기
         run: |
           aws s3 cp --recursive "s3://$BUCKET/models/$VER/" "/srv/paperclf/models/$VER/"
           bash /srv/paperclf/server.sh model "$VER"
+      - name: 장부 — 되돌리기 기록 (미통과 판이면 트리거가 거부한다)
+        run: python3 deploy/lightsail/ledger/ledger.py deploy "$VER" rollback "$PREV" true "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
       - name: 포인터 바꾸기
         run: |
           echo "{\"model_version\": \"$VER\", \"set_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"run\": \"$GITHUB_RUN_ID\"}" > current.json
           aws s3 cp current.json "s3://$BUCKET/models/current.json"
+      - name: 장부 백업 (롤백 직후, ADR-008)
+        run: python3 deploy/lightsail/ledger/ledger.py backup

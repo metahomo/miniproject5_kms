@@ -1,0 +1,8 @@
+[Unit]
+Description=paperclf ledger daily backup (ADR-008)
+
+[Service]
+Type=oneshot
+User=ec2-user
+WorkingDirectory=/srv/ledger
+ExecStart=/usr/bin/python3 /srv/ledger/ledger.py backup

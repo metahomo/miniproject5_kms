@@ -101,3 +101,17 @@ IP 로 직접 오는 평문 HTTP(`http://54.252.22.31/`)는 응답하지 않는 
 - Mac 쪽도 tailnet 에 있어야 다 절을 할 수 있다. 공용 Mac(Studio-C)은 관리자 권한이 없어 Tailscale 앱·시스템 확장을 못 깔 수 있다 — 대안(사용자 공간 `tailscaled --tun=userspace-networking` + `ssh -o ProxyCommand='tailscale nc %h %p'`, 또는 개인 기기에서만 접속)은 미검증.
 - 인증 키 종류(1회용·재사용, 태그 `tag:` 부여 여부)와 키 만료 끄기는 연구자가 정한다.
 - `tailscale up` 기본값은 tailnet DNS 를 받는다(`--accept-dns=true`). 서버 DNS 가 바뀌어 GHCR·S3 접속에 영향이 있는지는 미확인 — 문제가 되면 `--accept-dns=false` 를 검토한다.
+
+## 장부 DB (ADR-008·009, 2026-11-19 구성)
+
+| # | 단계 | 명령 | 기대 |
+|---|---|---|---|
+| 1 | 파일 올리기 | `scp deploy/lightsail/ledger/{compose.yml,ledger.py} "$S":/srv/ledger/` · `scp db/init/*.sql "$S":/srv/ledger/init/` | 오류 없음 |
+| 2 | 접속 정보(서버에서만, 600) | `/srv/ledger/.env`: `POSTGRES_DB`·`POSTGRES_USER`·`POSTGRES_PASSWORD`(서버에서 `openssl rand -hex 24`)·`BUCKET`·`AWS_REGION` | 저장소·채팅에 비밀번호 없음 |
+| 3 | 띄우기 | `ssh "$S" 'cd /srv/ledger && docker compose up -d'` | `paperclf-ledger` healthy, `127.0.0.1:5433` 에만 |
+| 4 | 매일 백업 | `paperclf-ledger-backup.{service,timer}` 를 `/etc/systemd/system/` 에 두고 `systemctl enable --now paperclf-ledger-backup.timer` | 매일 03:17 UTC → 버킷 `ledger/`, 최근 14개 |
+| 5 | 확인 | `ssh "$S" 'python3 /srv/ledger/ledger.py status'` | 건수·운영 중인 판 |
+
+기록은 워크플로가 한다: `model.yml` promote(실행·배포·백업), record-failure(게이트·parity 에서 멈춘 실행), `rollback.yml`(되돌리기·백업). 미통과 판의 배포 기록은 트리거가 거부한다(`ERROR: model … has not passed gate and parity`).
+
+복구: 버킷에서 덤프를 받아 `gunzip -c ledger-<시각>.sql.gz | docker exec -i paperclf-ledger psql -U ledger -d ledger` (빈 볼륨에서).
