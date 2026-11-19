@@ -68,3 +68,9 @@ tags:
 - 서버 13.237.237.56: `/health` 는 여전히 eta(app_version v2.4), https 연결 실패, Caddy·러너 미설치, 저장소 변수 0개. 이 Mac 에 서버 SSH 키·AWS 자격 증명 없음 → 2·4단계 대기.
 - 발표 보조 슬라이드 17장([공개](https://metahomo.github.io/md-slides/miniproject5-kms/)), claude.ai 페이지(비공개). 오전에 OpenKnowledge 제거, 템플릿은 [`templates/`](./templates/) 로.
 - 문서 갱신: [보고서](./reports/2026-11-19-autonomous-progress.md) 2·6·7절, [R3](./requirements/R3-auto-train-validate.md)(doing, 검증 증거 3건), [홈](./index.md) R1~R5 표, AI 활용 기록 7건의 "사람이 정한 것"(연구자 위임 초안).
+
+## 2026-11-19 오후 — 작업용 서버·AWS 정리
+
+- 연구자 결정으로 작업 분리: ① R1~R5 는 작업용 서버 `Amazon_Linux_2026_kms`(`54.252.22.31`)에서, ② 교수님 사이트(`13.237.237.56`) 게시는 맨 마지막에 교수님 지시대로. DNS 그대로, PR #21 보류.
+- 작업용 서버: Docker·Compose·Caddy(임시)·`/srv/paperclf`·러너 `paperclf` 온라인. Mac AWS CLI 는 IAM 사용자 `paperclf-commander` + 정책 `paperclf-lightsail`. 노출된 첫 접근 키 삭제·교체. 실습 잔여물(버킷 `nlpwi-eta-models`, 고정 IP `eta-deploy-ip`, 키 페어 2개) 삭제.
+- 문서: [R1](./requirements/R1-lightsail.md) 서버 절, [자원 정리](./runbooks/teardown.md) 절차 ③, [보고서](./reports/2026-11-19-autonomous-progress.md) 8절.

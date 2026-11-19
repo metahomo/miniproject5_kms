@@ -1,6 +1,6 @@
 ---
 title: 자원 정리
-description: 비용이 나가는 Lightsail·GitHub 자원을 순서대로 지우는 절차 — 기본은 공용 서버에서 paperclf 만 걷어내기, 인스턴스 전체 삭제는 참고
+description: 비용이 나가는 Lightsail·GitHub·IAM 자원을 순서대로 지우는 절차 — 작업용 서버(54.252.22.31)는 ③으로 전부 지우기, 교수님 서버는 ①(paperclf 만 걷어내기), 인스턴스 전체 삭제 ②는 참고
 tags:
   - runbook
   - aws
@@ -16,6 +16,7 @@ requirement: R1
 
 ## 먼저 알 것
 
+- **2026-11-19 작업 분리**: R1~R5 는 연구자의 작업용 서버 `Amazon_Linux_2026_kms`(고정 IP `54.252.22.31`)에서 한다 → 지울 때는 **③ 작업용 서버·AWS 계정 정리**. 아래 ①·②는 교수님 서버 `13.237.237.56`(eta 공용)에 올렸을 때의 절차다 — [R1](../requirements/R1-lightsail.md).
 - 서버 `13.237.237.56`(시드니 `ap-southeast-2`)은 강의 앱 eta 와 **공용**이다. 결정 [ADR-007](../decisions/ADR-007-region-instance.md): 인스턴스·고정 IP 는 지우지 않고 **paperclf 자원만** 지운다.
 - 그래서 두 갈래다. **① 기본 — paperclf 만 걷어내기**를 쓴다. **② 참고 — 인스턴스 전체 삭제**는 eta 운영자와 합의했을 때만 쓴다.
 - 순서는 강의 03 › 6 지우기(러너 → 인스턴스 → 고정 IP → 버킷 → 키 페어·저장소 변수, 만든 순서의 거꾸로)를 따른다 — [강의 자료 색인](../sources/lecture-index.md). ①은 인스턴스·고정 IP 대신 [`bootstrap.sh`](../deploy/lightsail/bootstrap.sh) ①~④를 거꾸로 되돌린다.
@@ -54,6 +55,25 @@ requirement: R1
 | 5 | 키 페어 | Lightsail 콘솔 + PC | 오른쪽 위 계정 → SSH 키 → `eta-deploy` 휴지통. PC: `rm eta-deploy.pem` (Windows: `Remove-Item .\eta-deploy.pem`) | 콘솔 SSH 키 목록에 `eta-deploy` 가 없다. `ls eta-deploy.pem` → 없음 |
 | 6 | 저장소 변수 | PC (gh CLI) | ①의 11단계와 같다 | `gh variable list -R metahomo/miniproject5_kms` → 빈 목록 |
 
+## 절차 ③ 작업용 서버·AWS 계정 정리 (54.252.22.31)
+
+작업용 서버는 연구자 혼자 쓰므로 인스턴스째 지운다. 리전은 모두 시드니 `ap-southeast-2`. 서버 설정은 [작업용 서버 런북](./work-server.md) 참고.
+
+| # | 단계 | 어디서 | 명령·화면 | 기대 결과 |
+|---|---|---|---|---|
+| 1 | 배포 멈추기·러너 지우기·장부 덤프 | PC·SSH·콘솔 | ①의 1~4단계를 그대로 한다. SSH 는 작업용 서버(`54.252.22.31`)로. 버킷이 지워지므로 덤프는 PC 에 둔다 | ①의 1~4단계 기대 결과와 같다 |
+| 2 | Tailscale 기기 제거·인증 키 폐기 (설치했을 때만) | SSH + Tailscale 관리 화면 | SSH: `sudo tailscale logout`<br>관리 화면 → Machines → 작업용 서버 기기 → … → **Remove**. Settings → Keys → 서버 등록에 쓴 auth key → **Revoke** | 관리 화면 Machines 에 이 기기가 없고, Keys 에 살아 있는 키가 없다 |
+| 3 | 프로젝트 버킷 | Lightsail 콘솔 | 스토리지 → 프로젝트 버킷(`gh variable get MODEL_BUCKET -R metahomo/miniproject5_kms` 로 이름 확인) → 삭제 → **강제 삭제**(객체째) | 콘솔 스토리지가 빈 안내 |
+| 4 | 인스턴스 | Lightsail 콘솔 | 인스턴스 → `Amazon_Linux_2026_kms` → 삭제 → 확인 → **인스턴스 삭제** | 콘솔 인스턴스 화면이 빈 안내. PC: `curl -sS -m 5 http://54.252.22.31/` → 시간 초과 |
+| 5 | 고정 IP `StaticIp-1` | Lightsail 콘솔 | 네트워킹 → `StaticIp-1`(`54.252.22.31`) → 삭제 탭 → **고정 IP 삭제**. 인스턴스가 지워져 떼어진 채 두면 1시간 뒤부터 시간당 0.005 USD | 콘솔 네트워킹에 고정 IP 가 없다 |
+| 6 | 키 페어 `miniproject5` | Lightsail 콘솔 + PC | 오른쪽 위 계정 → SSH 키 → `miniproject5` 휴지통. PC 의 개인 키 파일(`.pem`)도 지운다. `LightsailDefaultKeyPair` 는 Lightsail 기본 키라 둔다 | 콘솔 SSH 키 목록에 `miniproject5` 가 없다 |
+| 7 | 저장소 변수 | PC (gh CLI) | ①의 11단계와 같다 | `gh variable list -R metahomo/miniproject5_kms` → 빈 목록 |
+| 8 | IAM 접근 키 | IAM 콘솔 | 사용자 → `paperclf-commander` → 보안 자격 증명 → 액세스 키 → 비활성화 → **삭제**. Mac 의 `~/.aws/credentials` 에서 이 키 항목도 지운다. 이 단계부터 Mac 의 AWS CLI 는 쓸 수 없으므로 **1~7단계를 먼저** 끝낸다 | 사용자의 액세스 키 목록이 빈 안내 |
+| 9 | IAM 사용자 | IAM 콘솔 | 사용자 → `paperclf-commander` → **삭제** → 이름 입력 → 삭제 | 사용자 목록에 `paperclf-commander` 가 없다 |
+| 10 | IAM 정책 | IAM 콘솔 | 정책 → 필터 "고객 관리형" → `paperclf-lightsail` → **삭제** → 이름 입력 → 삭제. 사용자를 먼저 지워야 연결이 풀려 지워진다 | 고객 관리형 정책 목록에 `paperclf-lightsail` 이 없다 |
+
+조직 SCP 가 `ap-southeast-2`·`us-east-1` 외 리전을 막으므로, 확인할 리전은 이 둘뿐이다.
+
 ## 확인
 
 PC 에서 한 번에:
@@ -67,4 +87,4 @@ curl -fsS http://13.237.237.56/health              # ① eta 응답 / ② 시간
 curl -sSI http://13.237.237.56/health | grep -ic caddy   # ① 0
 ```
 
-Lightsail 콘솔(시드니)에서 스토리지에 `paperclf-models-apse2` 가 없고, ②를 했다면 인스턴스·네트워킹·스토리지·스냅샷 네 화면이 모두 빈 안내인지 본다. 다른 리전에 만든 자원이 없는지도 리전 메뉴로 확인한다.
+Lightsail 콘솔(시드니)에서 스토리지에 `paperclf-models-apse2` 가 없고, ②·③을 했다면 인스턴스·네트워킹·스토리지·스냅샷 네 화면이 모두 빈 안내인지 본다. 다른 리전에 만든 자원이 없는지도 리전 메뉴로 확인한다. ③을 했다면 IAM 콘솔에 `paperclf-commander` 사용자와 `paperclf-lightsail` 정책이 없는지 본다.
