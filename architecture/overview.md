@@ -43,11 +43,13 @@ flowchart LR
 
 ## 장부 DB
 
-모델 버전·배포 이력·예측 로그는 PostgreSQL 에 둔다 — [데이터 모델](./data-model.md), [ADR-002](../decisions/ADR-002-postgresql.md). 모델 파일과 `current.json` 의 정본은 버킷이다.
+모델 버전·배포 이력·예측 로그는 PostgreSQL 에 둔다 — [데이터 모델](./data-model.md), [ADR-002](../decisions/ADR-002-postgresql.md). 모델 파일과 `current.json` 의 정본은 버킷이다. 운영 장부는 작업용 서버 `/srv/ledger`(컨테이너 `paperclf-ledger`, 서버 안에서만)에서 돈다 — [ADR-008](../decisions/ADR-008-ledger-db-ops.md)·[ADR-009](../decisions/ADR-009-ledger-writer.md), 2026-11-19.
 
 ## 인프라
 
-서버: `nlpwizard.eta.pyhub.kr` (`13.237.237.56`) — [ADR-003](../decisions/ADR-003-domain-server.md).
+서버(R1~R5 수행): 작업용 Lightsail `Amazon_Linux_2026_kms`, 고정 IP `54.252.22.31`, HTTPS `https://54-252-22-31.sslip.io` — [작업용 서버 런북](../runbooks/work-server.md). 최종 결과물 게시 서버: `nlpwizard.eta.pyhub.kr` (`13.237.237.56`) — [ADR-003](../decisions/ADR-003-domain-server.md).
+
+공개 API: `/predict` 는 토큰 인증·IP 별 분당 60 제한(v0.1.3), `/health` 는 공개 — [코드 배포 런북](../runbooks/deploy-code.md).
 
 리전: 시드니 `ap-southeast-2`, 버킷도 같은 리전 — [ADR-007](../decisions/ADR-007-region-instance.md).
 
@@ -77,5 +79,6 @@ flowchart LR
 
 ## 미해결
 
-- 서버 접근·버킷 — 연구자 외부 준비 대기(SSH 키 등록·AWS 액세스 키). 그때까지 배포·승격·되돌리기 잡은 저장소 변수 `DEPLOY_ENABLED` 로 꺼 둠
+- ~~서버 접근·버킷~~ → 작업용 서버·버킷 `paperclf-models-apse2`, `DEPLOY_ENABLED=true`(2026-11-19)
+- SSH 22번 닫기 — 마감 직전(Tailscale 등록됨)
 - ~~예측 로그를 장부 DB 에 남기는 방법~~ → API 가 localhost 로 직접 — [ADR-009](../decisions/ADR-009-ledger-writer.md)
