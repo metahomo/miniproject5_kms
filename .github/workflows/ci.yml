@@ -12,6 +12,16 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    services: # 장부 스키마·트리거 시험용(tests/test_ledger_db.py) — 이 작업 안에서만 산다
+      postgres:
+        image: postgres:18.7
+        env:
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 2s --health-timeout 2s --health-retries 30
+    env:
+      LEDGER_TEST_DSN: postgresql://postgres:test@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.3.3

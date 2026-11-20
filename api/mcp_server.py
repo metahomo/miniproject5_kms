@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import sys
 from typing import BinaryIO
 
@@ -92,12 +93,15 @@ def _check(arguments: object) -> tuple[str, str | None]:
 def classify(arguments: object) -> dict:
     """tools/call 결과. 인자 오류는 -32602(_ProtocolError), 모델 없음은 isError 결과."""
     title, abstract = _check(arguments)
+    x = vectorize(title, abstract)
+    if not x.any():  # 영벡터는 p_include 가 NaN 이 된다 — /predict 의 422 와 같은 경우
+        raise _ProtocolError(INVALID_PARAMS, "특징이 없다 — title·abstract 에 글자나 숫자가 있어야 한다")
     model = app_module.MODEL  # 시험에서 api.app 을 다시 불러와도 최신 모델을 쓰도록 호출마다 읽는다
     if not model.ready:
         detail = "모델이 없다 (MODEL_DIR·MODEL_IMPL 확인)"
         return {"content": [{"type": "text", "text": f"{detail} (code: no_model)"}],
                 "structuredContent": {"code": "no_model", "detail": detail}, "isError": True}
-    p = float(model.p_include(vectorize(title, abstract).reshape(1, -1))[0])
+    p = float(model.p_include(x.reshape(1, -1))[0])
     label = label_for(p)
     structured = {
         "p_include": p,
@@ -137,6 +141,9 @@ def handle(message: object) -> dict | None:
         log.info("알림 %s", method)
         return None
     msg_id = message["id"]
+    if isinstance(msg_id, bool) or not (msg_id is None or isinstance(msg_id, (str, int))
+                                        or (isinstance(msg_id, float) and math.isfinite(msg_id))):
+        return _error(None, INVALID_REQUEST, "id 는 문자열·숫자·null 이어야 한다")  # NaN id 는 응답을 JSON 으로 못 쓴다
     params = message.get("params") or {}
     if not isinstance(params, dict):
         return _error(msg_id, INVALID_PARAMS, "params 는 객체여야 한다")
