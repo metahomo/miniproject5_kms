@@ -41,16 +41,35 @@ jobs:
       - name: 장부 백업 (롤백 직후, ADR-008)
         run: python3 deploy/lightsail/ledger/ledger.py backup
 
-  rollback-final: # 최종 서버 — 그 서버 models/ 에 있는 판으로만 되돌린다(승격된 판은 남아 있다). FINAL_ENABLED=true 일 때만
+  rollback-final: # 최종 서버 — 그 서버 models/ 에 남아 있는 통과 판(validated.json)으로만 되돌린다. FINAL_ENABLED=true 일 때만
     if: vars.FINAL_ENABLED == 'true'
     runs-on: [self-hosted, final]
     concurrency: { group: final, cancel-in-progress: false }
     env:
-      VER: ${{ inputs.version }}
+      VER: ${{ inputs.version }} # 입력은 env 로만 넘긴다 (스크립트 주입 방지)
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v7.0.1
       - run: cp deploy/lightsail/compose.yml deploy/lightsail/server.sh /srv/paperclf/
-      - name: 판 이름 검사
-        run: '[[ $VER =~ ^m[0-9]{8}-[0-9]+$ ]] || { echo "모델 판 형식이 아니다: $VER" >&2; exit 1; }'
-      - run: bash /srv/paperclf/server.sh model "$VER"
-
+      - name: 판 이름·통과 기록 검사 (장부 트리거 대신 — promote-final 이 게이트·parity 통과 판에만 남긴다)
+        run: |
+          [[ $VER =~ ^m[0-9]{8}-[0-9]+$ ]] || { echo "모델 판 형식이 아니다: $VER" >&2; exit 1; }
+          python3 - <<'PY' || { echo "$VER 은 이 서버의 통과 판이 아니다 — ls /srv/paperclf/models 로 남은 판을 본다" >&2; exit 1; }
+          import json, os, sys
+          ver = os.environ["VER"]
+          v = json.load(open(f"/srv/paperclf/models/{ver}/validated.json"))
+          sys.exit(0 if v.get("version") == ver and v.get("gate_passed") and v.get("parity_passed") else f"model {ver} has not passed gate and parity")
+          PY
+          PREV=$(grep '^MODEL_VERSION=' /srv/paperclf/.env | cut -d= -f2 || true)
+          echo "PREV=${PREV:--}" >> "$GITHUB_ENV"
+      - name: 그 판으로 띄우기 (health 로 그 판인지 확인, 실패면 server.sh 가 직전 판으로 되돌린다)
+        run: bash /srv/paperclf/server.sh model "$VER"
+      - name: 장부(있으면) — 되돌리기 기록 (미통과 판이면 트리거가 거부한다)
+        run: |
+          [ -f /srv/ledger/.env ] || exit 0
+          python3 deploy/lightsail/ledger/ledger.py deploy "$VER" rollback "$PREV" true "$RUN_URL"
+      - name: 포인터 바꾸기 (이 서버 models/current.json)
+        run: |
+          echo "{\"model_version\": \"$VER\", \"set_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"run\": \"$GITHUB_RUN_ID\"}" > /srv/paperclf/models/current.json
+      - name: 확인
+        run: bash /srv/paperclf/server.sh status
