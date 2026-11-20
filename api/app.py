@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import math
 import os
@@ -18,7 +19,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel, Field, model_validator
 
 from paperclf.features import FEATURE_VERSION, N_FEATURES, to_dense, vectorize
@@ -99,6 +100,44 @@ class Prediction(BaseModel):
     p_include: float
     label: str
     model_version: str
+
+
+# 첫 화면 — 주소만 열어도 무엇을 하는 API 인지 보이게 (2026-11-20 연구자: "/" 가 Not Found)
+_LANDING = """<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>paperclf API</title>
+<style>
+ :root {{ color-scheme: light dark; }}
+ body {{ font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif; line-height: 1.6; max-width: 820px; margin: 2rem auto; padding: 0 1rem; }}
+ code, pre {{ font-family: ui-monospace, Menlo, monospace; }}
+ pre {{ background: #0f172a; color: #e2e8f0; padding: .9rem 1rem; border-radius: 8px; overflow-x: auto; }}
+ table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #8884; padding: .35rem .5rem; text-align: left; }}
+ .tag {{ display: inline-block; padding: .05rem .5rem; border-radius: 999px; background: #8882; font-size: .85em; }}
+</style></head><body>
+<h1>📚 paperclf API</h1>
+<p>논문 제목·초록을 받아 <b>주제(코칭 리더십 효과성)에 맞는 논문인지</b> 판정합니다 — 포함 확률 <code>p_include</code> 와 라벨(include · exclude · uncertain).</p>
+<p><span class="tag">model: {impl}</span> <span class="tag">app_version: {app}</span> <span class="tag">model_version: {model}</span></p>
+<h2>POST /predict</h2>
+<table><tr><th>필드</th><th>타입</th><th>설명</th></tr>
+<tr><td><code>title</code></td><td>string ≤ 1000</td><td>논문 제목</td></tr>
+<tr><td><code>abstract</code></td><td>string ≤ 20000 (선택)</td><td>초록</td></tr></table>
+<p>인증: <code>Authorization: Bearer &lt;토큰&gt;</code> (없으면 401) · IP 당 분당 60회(넘으면 429). 토큰은 운영자에게 받습니다.</p>
+<pre>curl -X POST https://nlpwizard.eta.pyhub.kr/predict \\
+  -H 'Authorization: Bearer &lt;토큰&gt;' -H 'Content-Type: application/json' \\
+  -d '{{"title": "Managerial coaching and employee engagement"}}'
+# → {{"p_include": 0.97, "label": "include", "model_version": "…"}}</pre>
+<h2>AI 에이전트용 — POST /mcp</h2>
+<p>MCP(JSON-RPC) 도구 <code>classify_paper</code>. 같은 토큰·같은 사용량 제한.</p>
+<h2>상태</h2>
+<p><a href="/health">/health</a> — 서비스 상태와 모델 판 · <a href="/model">/model</a> — 모델 카드(F1·parity·학습 실행) · <a href="/docs">/docs</a> — 대화형 문서</p>
+<p style="opacity:.7">소스: <a href="https://github.com/metahomo/miniproject5_kms">github.com/metahomo/miniproject5_kms</a> — 코드 판(ci) · 모델 판(model: 게이트·parity) · 롤백</p>
+</body></html>"""
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def landing() -> HTMLResponse:
+    e = lambda v: html.escape(str(v))  # noqa: E731 — 판 이름도 그대로 넣지 않는다
+    return HTMLResponse(_LANDING.format(impl=e(MODEL_IMPL), app=e(APP_VERSION), model=e(MODEL.version)))
 
 
 @app.get("/health")
