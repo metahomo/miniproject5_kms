@@ -22,7 +22,7 @@ def test_snapshot_stats(tmp_path):
     s = ledger.snapshot_stats(make_snapshot(tmp_path))
     assert (s["n_rows"], s["n_include"], s["n_exclude"]) == (4, 2, 1)
     assert s["dataset_id"] == f"topic-20261119-{s['sha256'][:12]}"
-    assert s["label_source"]["topic"] == "t"
+    assert s["label_source"]["topic"] == "t" and s["label_source"]["files"] == ["topic-20261119.jsonl.gz"]
 
 
 def test_run_record_passed(tmp_path):
@@ -50,3 +50,19 @@ def test_run_record_gate_failed(tmp_path):
     assert not mv["gate_passed"] and not mv["parity_passed"]
     assert mv["onnx_sha256"] == "" and mv["parity_max_diff"] == ""
     assert mv["metrics"]["fails"]
+
+
+def test_snapshot_stats_multi_later_wins(tmp_path):
+    """스냅숏 여러 개: 같은 key 는 이름순으로 뒤 파일이 이기고, 데이터셋 하나로 센다."""
+    def write(name, rows):
+        p = tmp_path / name
+        with gzip.open(p, "wt", encoding="utf-8") as f:
+            for r in [{"_meta": {"topic": "t"}}] + rows:
+                f.write(json.dumps(r) + "\n")
+        return p
+    a = write("t-20261119.jsonl.gz", [{"key": "a", "label": "include"}, {"key": "b", "label": "exclude"}])
+    b = write("t-20261120.jsonl.gz", [{"key": "b", "label": "include"}, {"key": "c", "label": "exclude"}])
+    s = ledger.snapshot_stats([b, a])
+    assert (s["n_rows"], s["n_include"], s["n_exclude"]) == (3, 2, 1)
+    assert s["bucket_key"] == "snapshots/t-20261119.jsonl.gz+t-20261120.jsonl.gz" and len(s["sha256"]) == 64
+
