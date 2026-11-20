@@ -66,6 +66,7 @@ tailnet 트래픽은 `tailscale0` 으로 들어오므로 Lightsail 방화벽 규
 | 2 | 22 규칙 좁히기 | Lightsail 콘솔 → 인스턴스 → Networking → IPv4 Firewall → SSH 규칙 편집 → "Restrict to IP address" 에서 Lightsail browser SSH 만 남긴다 | 규칙에 HTTP 80·HTTPS 443 은 그대로, SSH 는 브라우저 SSH 만 |
 | 3 | 밖에서 막혔는지 | `ssh -o ConnectTimeout=5 ec2-user@54.252.22.31 true` (tailnet 밖 기기) | 시간 초과 |
 
+- **2026-11-20 적용(두 서버, 연구자 지시):** KMS 웹 터널이 Mac 에서 SSH 22 로 서버에 붙으므로(Mac 은 tailnet 밖) 22 를 다 닫지 않고 **Mac/연구자 공인 IP 하나 + Lightsail 브라우저 SSH(`lightsail-connect`)** 로 좁혔다. 80·443 은 전체 그대로. 확인: Mac `ssh … true` 성공, 터널 LISTEN, `/health`·KMS 200. 공인 IP 가 바뀌면 터널이 끊긴다 — 브라우저 SSH 로 들어가거나 콘솔에서 SSH 규칙의 IP 를 새 값으로 바꾼다(Mac: `ssh ec2-user@<서버> 'echo $SSH_CLIENT'` 의 첫 값이 지금 IP).
 - 브라우저 SSH 는 비상구로 남긴다 — tailnet 이 끊겨도 콘솔에서 들어가 되돌릴 수 있다.
 - CLI 로 할 때 `aws lightsail put-instance-public-ports` 는 **규칙 전체를 바꿔 쓴다** — 80·443 을 빠뜨리면 HTTPS 가 끊긴다. 콘솔 편집을 권한다.
 - self-hosted 러너(paperclf)는 GitHub 로 나가는 연결만 쓰므로 22 를 닫아도 배포·승격·되돌리기는 그대로 돈다.

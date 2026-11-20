@@ -55,7 +55,7 @@ requirement: R1
 ## 전제조건
 
 - [ ] 0절 완료 (Mac 에서 `ssh` 가 된다). 아래 명령은 `S=ec2-user@54.253.32.153` 로 줄여 쓴다(키 파일은 `~/.ssh/config` 에 두거나 `ssh -i …` 를 붙인다)
-- [ ] DNS `nlpwizard.eta.pyhub.kr` → `54.253.32.153` (2026-11-20 확인: `dig +short nlpwizard.eta.pyhub.kr`), Lightsail 방화벽 TCP 80·443 열림
+- [ ] DNS `nlpwizard.eta.pyhub.kr` → `54.253.32.153` (2026-11-20 확인: `dig +short nlpwizard.eta.pyhub.kr`), Lightsail 방화벽 TCP 80·443 열림 · SSH 22 는 Mac/연구자 공인 IP 하나와 브라우저 SSH 에만(2026-11-20, [작업용 서버 런북](./work-server.md) 다 절)
 - [ ] KMS 블록을 쓰려면 서버에 접속 암호 해시 `/srv/caddy/kms.hash`(root 600)가 있다 — 아래 "KMS 웹" 1단계
 - [ ] PR #45 가 `main` 에 병합됨 — `bootstrap.sh` 는 `main` 의 파일을 받는다
 
