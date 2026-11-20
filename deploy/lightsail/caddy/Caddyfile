@@ -5,7 +5,8 @@
 	admin off
 }
 
-nlpwizard.eta.pyhub.kr {
+# 54-253-32-153.sslip.io — 최종 서버 고정 IP(54.253.32.153) 이름. 도메인 레코드를 이 IP 로 바꾸기 전에도 HTTPS 로 확인 (2026-11-20)
+nlpwizard.eta.pyhub.kr, 54-253-32-153.sslip.io {
 	encode zstd gzip
 	header {
 		Strict-Transport-Security "max-age=31536000"

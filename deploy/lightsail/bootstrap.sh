@@ -56,7 +56,7 @@ fi
 
 echo "③ Caddy"
 (cd /srv/caddy && docker compose up -d && { [ "$CADDY_CHANGED" = 0 ] || docker compose restart caddy; })
-if [ "$ROLE" = final ]; then # 작업용 서버(Caddyfile.work)에는 :80 블록·eta 가 없다
+if [ "$ROLE" = final ] && [ -f /srv/eta/compose.yml ]; then # 작업용 서버·새 서버(eta 없음)에는 건너뛴다
   for i in $(seq 1 30); do curl -fsS localhost/health >/dev/null 2>&1 && break; sleep 1; done
   curl -fsS localhost/health && echo " ← eta 가 Caddy 뒤에서 응답"
 fi
