@@ -23,6 +23,8 @@ status: draft
 
 ## 1. 준비물
 
+- [ ] 발표 직전: 노트북 Claude Code 에서 `조감도 아티팩트 갱신해줘` → 발표용 조감도 <https://claude.ai/artifact/AdmNgiPUDRdAk1dp5uojxm> 가 최신인지(맨 위 "마지막 갱신" 시각) 확인
+
 ### 시연 전날
 
 - [ ] 저장소 변수 세 개가 있다: `gh variable list` → `DEPLOY_ENABLED=true`, `MODEL_BUCKET=paperclf-models-apse2`, `AWS_REGION=ap-southeast-2` ([롤백 런북](../runbooks/rollback.md#전제조건))
