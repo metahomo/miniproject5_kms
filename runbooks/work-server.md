@@ -123,3 +123,10 @@ IP 로 직접 오는 평문 HTTP(`http://54.252.22.31/`)는 응답하지 않는 
 5. 확인: `python3 /srv/ledger/ledger.py status` 건수가 백업 시점과 같다
 
 훈련 결과(2026-11-19 14:06 UTC 덤프 → 임시 컨테이너): datasets 1 · model_versions 5 · deployments 5 · predictions 64 · 운영 판 m20261119-11 이 운영 DB 와 같았고, 복원한 DB 에서도 미통과 판 배포 기록을 트리거가 거부했다.
+
+## KMS 웹 임시 게시 (2026-11-20, 최종 서버로 옮기기 전)
+
+- 주소: `https://kms.54-252-22-31.sslip.io` — Caddy `basic_auth`(사용자 `kms`, 암호 원문은 Mac `~/.config/paperclf/kms-web-password` 에만, Caddyfile 에는 bcrypt 해시만 — 저장소에는 자리표시 `KMS_HASH`)
+- 연결: Mac `~/.claude/autonomy/kms-tunnel-loop.sh`(nohup) 가 역방향 SSH 터널 `서버 127.0.0.1:10011 → Mac 127.0.0.1:10001` 을 유지(끊기면 10초 뒤 다시). KMS 웹(`kms.cli serve`)과 판정·RAG 용 LLM 은 Mac 에서 돈다
+- 확인: 암호 없이 `401`, 암호로 `/health` → `status ok`
+- 내리기: Mac 에서 `kill $(cat ~/.claude/autonomy/kms-tunnel.pid)` 후 `pkill -f "10011:127.0.0.1:10001"`, 서버 Caddyfile 에서 `kms.…` 블록 삭제 후 `docker compose restart caddy`
