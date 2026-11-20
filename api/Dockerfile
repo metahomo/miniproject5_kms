@@ -13,4 +13,5 @@ RUN useradd --system --uid 10001 app
 USER app
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health')"
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Caddy 뒤에서 X-Forwarded-Proto 를 믿어 리디렉트가 https 로 나가게 (보안 점검 2026-11-20)
+CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers", "--forwarded-allow-ips", "*"]

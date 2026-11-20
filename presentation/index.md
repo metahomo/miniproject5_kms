@@ -19,6 +19,7 @@ tags:
 | 3 | [강의 대비 개선점](./03-improvements.md) | 옵션 | draft |
 | 4 | [AI에게 서비스 제공하기](./04-service-for-ai.md) | 옵션 | draft |
 | 5 | [시연 대본](./05-demo-script.md) | 시연 | draft |
+| 6 | [예상 질문과 답](./06-qa.md) | 질의응답 | draft |
 
 ## 발표 원칙
 

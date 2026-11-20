@@ -25,3 +25,22 @@
 		header_down -Server
 	}
 }
+
+# KMS 웹(임시 게시, 2026-11-20 연구자 지시) — Mac 의 KMS(127.0.0.1:10001)를 역방향 SSH 터널로 127.0.0.1:10011 에 받는다
+# 보호: HTTPS + 접속 암호(무작위 24자, 해시만 여기에 — 원문은 Mac ~/.config/paperclf/kms-web-password). KMS 18절
+kms.54-252-22-31.sslip.io {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+	basic_auth {
+		kms KMS_HASH
+	}
+	reverse_proxy 127.0.0.1:10011 {
+		header_down -Server
+	}
+}
