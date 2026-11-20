@@ -83,7 +83,7 @@ def test_tools_call_ok_and_errors(mcp):
     assert "m20261119-7" in r["content"][0]["text"] and s["feature_version"]
 
     for bad in ({"title": ""}, {"title": "   "}, {}, {"title": "x", "extra": 1}, {"title": "x" * 1001},
-                {"title": "x", "abstract": 3}):
+                {"title": "x", "abstract": 3}, {"title": "?!"}, {"title": "\U0001F600", "abstract": "..."}):
         e = mcp.handle(_rpc("tools/call", {"name": "classify_paper", "arguments": bad}))
         assert e["error"]["code"] == -32602, bad
     assert mcp.handle(_rpc("tools/call", {"name": "nope", "arguments": PAPER}))["error"]["code"] == -32602
@@ -151,3 +151,61 @@ def test_remote_mcp_http(mcp, monkeypatch):
     assert c.post("/mcp", content=b"{not json", headers={**h, "content-type": "application/json"}).status_code == 400
     assert c.get("/mcp").status_code == 405
 
+
+
+def test_protocol_error_paths(mcp, monkeypatch):
+    """JSON-RPC 오류 경로: 잘못된 요청 모양, params, id 보존, ping, 버전 협상, 내부 예외."""
+    assert mcp.handle([_rpc("ping")]) == mcp._error(None, -32600, "Invalid Request")  # 일괄(배열)은 지원하지 않는다
+    assert mcp.handle("ping")["error"]["code"] == -32600
+    assert mcp.handle({"jsonrpc": "1.0", "id": 5, "method": "ping"}) == mcp._error(5, -32600, "Invalid Request")
+    assert mcp.handle({"jsonrpc": "2.0", "id": 6})["error"]["code"] == -32600  # method 없음
+    assert mcp.handle({"jsonrpc": "2.0", "id": 7, "method": 3})["error"]["code"] == -32600
+    assert mcp.handle({**_rpc("ping", msg_id=8), "params": [1]}) == mcp._error(8, -32602, "params 는 객체여야 한다")
+    assert mcp.handle({**_rpc("ping", msg_id=9), "params": None})["result"] == {}
+    for msg_id in ("abc", 0, None, 2.0):
+        assert mcp.handle({"jsonrpc": "2.0", "id": msg_id, "method": "ping"}) == {"jsonrpc": "2.0", "id": msg_id, "result": {}}
+    for bad_id in (float("nan"), float("inf"), True, {"a": 1}, [1]):
+        r = mcp.handle({"jsonrpc": "2.0", "id": bad_id, "method": "ping"})
+        assert r["id"] is None and r["error"]["code"] == -32600, bad_id
+    assert mcp.handle({"jsonrpc": "2.0", "method": "no/such"}) is None  # 알림에는 오류도 답하지 않는다
+    assert mcp.handle(_rpc("initialize", {"protocolVersion": "1999-01-01"}))["result"]["protocolVersion"] == "2025-11-25"
+    assert mcp.handle(_rpc("initialize"))["result"]["protocolVersion"] == "2025-11-25"
+    assert mcp.handle(_rpc("tools/call", {"name": "classify_paper"}))["error"]["code"] == -32602  # arguments 없음
+    assert mcp.handle(_rpc("tools/call", {"name": "classify_paper", "arguments": "x"}))["error"]["code"] == -32602
+
+    def boom(_):
+        raise RuntimeError("secret detail")
+    monkeypatch.setattr(mcp, "classify", boom)
+    r = mcp.handle(_rpc("tools/call", {"name": "classify_paper", "arguments": PAPER}, msg_id=10))
+    assert r == mcp._error(10, -32603, "Internal error")  # 내부 메시지는 밖으로 내보내지 않는다
+
+
+def test_handle_line_and_serve_keep_going(mcp):
+    import io
+
+    assert mcp.handle_line(b"   \n") is None
+    assert mcp.handle_line(b"\xff\xfe\n")["error"]["code"] == -32700  # UTF-8 아님
+    lines = b"{bad\n\n" + json.dumps(_rpc("ping", msg_id=1)).encode() + b"\n" + b'{"jsonrpc":"2.0","id":NaN,"method":"ping"}\n' \
+        + json.dumps(_rpc("tools/call", {"name": "classify_paper", "arguments": PAPER}, 2)).encode() + b"\n"
+    out = io.BytesIO()
+    assert mcp.serve(io.BytesIO(lines), out) == 0
+    replies = [json.loads(x) for x in out.getvalue().decode().splitlines()]  # 모두 표준 JSON 이어야 한다
+    assert [r.get("id") for r in replies] == [None, 1, None, 2]
+    assert [r.get("error", {}).get("code") for r in replies] == [-32700, None, -32600, None]
+
+
+def test_remote_mcp_http_edge(mcp, monkeypatch):
+    """POST /mcp: 배열·NaN id 는 200 + 오류 객체(500 이 아님), 사용량 제한은 /predict 와 같은 바구니."""
+    import api.app as app_module
+
+    monkeypatch.setenv("API_TOKEN", "")
+    monkeypatch.setenv("RATE_LIMIT_PER_MIN", "3")
+    app_module.GUARD = app_module.Guard()
+    c = TestClient(app_module.app)
+    h = {"X-Forwarded-For": "198.51.100.1", "content-type": "application/json"}
+    r = c.post("/mcp", content=b"[]", headers=h)
+    assert r.status_code == 200 and r.json()["error"]["code"] == -32600
+    r = c.post("/mcp", content=b'{"jsonrpc":"2.0","id":NaN,"method":"ping"}', headers=h)
+    assert r.status_code == 200 and r.json()["error"]["code"] == -32600
+    assert c.post("/predict", json=PAPER, headers=h).status_code == 200
+    assert c.post("/mcp", json=_rpc("ping"), headers=h).status_code == 429

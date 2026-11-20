@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import pickle
 import time
@@ -15,6 +16,8 @@ from pathlib import Path
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field, model_validator
 
@@ -65,6 +68,17 @@ GUARD = Guard()
 app = FastAPI(title="paperclf", version=APP_VERSION)
 
 
+@app.exception_handler(RequestValidationError)
+async def _validation_error(request: Request, exc: RequestValidationError):
+    """422 본문은 입력을 되돌려 주는데, 입력에 NaN·Infinity(표준 밖 JSON)가 있으면 직렬화가 실패해 500 이 된다.
+    그때만 input·ctx 를 빼고 422 로 답한다."""
+    try:
+        return await request_validation_exception_handler(request, exc)
+    except ValueError:
+        detail = [{k: v for k, v in e.items() if k not in ("input", "ctx")} for e in exc.errors()]
+        return JSONResponse(status_code=422, content={"detail": detail})
+
+
 class Paper(BaseModel):
     title: str | None = Field(default=None, max_length=1000)
     abstract: str | None = Field(default=None, max_length=20000)
@@ -76,7 +90,7 @@ class Paper(BaseModel):
     def _one_input(self):
         if self.features is None and not (self.title or "").strip():
             raise ValueError("title 또는 features 가 필요하다")
-        if self.features is not None and any(not 0 <= i < N_FEATURES or c < 0 for i, c in self.features):
+        if self.features is not None and any(not 0 <= i < N_FEATURES or not math.isfinite(c) or c < 0 for i, c in self.features):
             raise ValueError("features 범위 밖")
         return self
 
@@ -105,6 +119,8 @@ def predict(paper: Paper, request: Request) -> Prediction:
     GUARD.check(request)
     t0 = time.perf_counter()
     x = to_dense(paper.features) if paper.features is not None else vectorize(paper.title, paper.abstract)
+    if not x.any():  # 영벡터는 tf-idf 정규화에서 0/0 → p_include 가 NaN 이 된다 (예: 제목 "?"·이모지만)
+        raise HTTPException(status_code=422, detail="특징이 없다 — 제목·초록에 글자나 숫자가 있어야 한다")
     p = float(MODEL.p_include(x.reshape(1, -1))[0])
     label = label_for(p)
     if paper.features is None:  # parity 확인용 특징 입력은 운영 예측이 아니라 남기지 않는다
