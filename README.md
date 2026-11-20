@@ -8,12 +8,12 @@ tags:
 
 KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과를 **교사 라벨**로 삼아, CPU 로 도는 **학생 모델**(해싱 글자 n-gram → TF-IDF → 로지스틱 회귀, ONNX 서빙)을 학습하고, 검증을 통과한 판만 AWS Lightsail 서버에 자동으로 올린다. 미니 프로젝트 5 "ML 시스템 클라우드 배포" 과제 — [과제 브리프](./sources/project-brief.md).
 
-**지금 운영 중**: <https://54-252-22-31.sslip.io/health> (app `v0.1.4` · model `m20261120-17`, 2026-11-20 — 새 데이터로 자동 재학습한 판)
+**지금 운영 중**: <https://nlpwizard.eta.pyhub.kr> (최종) · <https://54-252-22-31.sslip.io/health> (작업용) — app `v0.1.6` · model `m20261120-24`, 2026-11-20
 
 | 주소 | 상태 |
 |---|---|
-| 작업용 서버 <https://54-252-22-31.sslip.io> | R1~R5 모두 여기서 실행·확인 — 게이트 F1 0.9609, parity 5.5e-7, 시험 32개 |
-| 최종 서버 `nlpwizard.eta.pyhub.kr` | 배포 준비만 끝남(PR [#45](https://github.com/metahomo/miniproject5_kms/pull/45), `FINAL_ENABLED` 로 켜기 전엔 동작 없음) — 서버 접근 대기 |
+| 작업용 서버 <https://54-252-22-31.sslip.io> | R1~R5 모두 여기서 실행·확인 — 게이트 F1 0.9609, parity 5.5e-7, 시험 87개 |
+| 최종 서버 <https://nlpwizard.eta.pyhub.kr> | **운영 중** — 연구자 계정 Lightsail(고정 IP 54.253.32.153), 러너 `paperclf-final`, `FINAL_ENABLED=true` 로 태그 하나가 두 서버에 배포(PR [#45](https://github.com/metahomo/miniproject5_kms/pull/45)·[#56](https://github.com/metahomo/miniproject5_kms/pull/56)) |
 | KMS 웹 <https://kms.54-252-22-31.sslip.io> | 임시 게시 — HTTPS + 접속 암호(basic auth), PR [#51](https://github.com/metahomo/miniproject5_kms/pull/51) |
 
 ## 한 줄 흐름
