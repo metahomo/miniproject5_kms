@@ -6,7 +6,7 @@ tags:
   - birdseye
 date: 2026-11-19
 ---
-# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-20 17:24)
+# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-20 17:49)
 
 사령관이 늘 관리하는 1호 목록이다([사령관 지침](../CLAUDE.md) 1절 절대규칙). 이 파일은 이름·위치를 바꾸지 않고, 진행이 바뀔 때마다 이 자리에서 보강한다. 화면판(html)은 `~/.claude/birdseye/build.py` 가 gh 조회로 만든다. 화면으로 보기: `git pull` 뒤 같은 폴더의 `birdseye-update.html` 을 브라우저로 연다.
 
@@ -14,6 +14,7 @@ date: 2026-11-19
 
 | 시각 | 바뀐 것 |
 |---|---|
+| 11-20 17:49 | 남은 할 일 네 가지 완료 — PR #59 병합, 운영 감시 두 서버([실행 44704300507](https://github.com/metahomo/miniproject5_kms/actions/runs/44704300507) 최종·작업용 모두 성공), 자원 정리 런북 새 최종 서버 기준, SSH 22 = Mac 공인 IP + 브라우저 SSH(KMS 터널 때문에 완전 닫기 대신) — [PR #60](https://github.com/metahomo/miniproject5_kms/pull/60) 병합 |
 | 11-20 17:24 | 과제 도메인 첫 화면 = KMS 웹 — https://nlpwizard.eta.pyhub.kr (HTTPS·접속 암호), API 경로 /health·/predict·/model·/mcp 는 paperclf 그대로, API 소개·/docs 는 https://54-253-32-153.sslip.io. Mac → 최종 서버 KMS 터널, Caddyfile 저장소·서버 일치(해시는 서버에만), KMS 저널 평가 646·보고서·노트 6,061. 점검 통과(401/200·health ok·predict 401/200·pytest 83). PR #59 검사 통과 — 병합 대기 |
 | 11-20 16:52 | v0.1.6 — 첫 화면(/) 추가, 두 서버 동시 배포(https://nlpwizard.eta.pyhub.kr · 작업용) |
 | 11-20 16:46 | ✅ 최종 도메인 개통 — https://nlpwizard.eta.pyhub.kr (54.253.32.153) v0.1.5 · m20261120-24, 인증서 자동 발급, 토큰 없이 401, HSTS |
@@ -113,7 +114,7 @@ flowchart LR
 |---|---|---|
 | 인스턴스 | `Amazon_Linux_2026_kms` (AL2023, 2GB·2vCPU·60GB) | running — Docker·Caddy(임시)·러너 `paperclf` 온라인 |
 | 고정 IP | `StaticIp-1` = `54.252.22.31` | 서버에 연결됨 |
-| 방화벽 | 22·80·443 | 열림 (22 는 Tailscale 뒤 좁힘) |
+| 방화벽 | 22·80·443 | 80·443 전체, **22 = Mac 공인 IP + 브라우저 SSH**(11-20, 두 서버) |
 | 버킷 | `paperclf-models-apse2` | 사용 중 — 인스턴스가 키 없이 읽고 씀 |
 | IAM | 사용자 `paperclf-commander`, 정책 `paperclf-lightsail` | 사용 중 (노출된 첫 키는 삭제·교체) |
 | Tailscale | 기기 `paperclf` | 연결 100.102.186.119 |
@@ -144,7 +145,8 @@ flowchart LR
 | PR #28 예측 로그(v0.1.2) · PR #29 발표 자료 증거 | 병합됨 |
 | PR #30 공개 API 보호(v0.1.3) · PR #31 기록 정리 | 병합됨 |
 | PR #51 KMS 웹 임시 게시 · #57 첫 화면 v0.1.6 · #58 최종 도메인 문서 | 병합됨 |
-| PR #59 최종 도메인 첫 화면 = KMS 웹 · Caddyfile 동기화 · 작업 일지 | 검사 통과 — 병합 대기 |
+| [PR #59](https://github.com/metahomo/miniproject5_kms/pull/59) 최종 도메인 첫 화면 = KMS 웹 · Caddyfile 동기화 | 병합됨 `d28ed9f` |
+| [PR #60](https://github.com/metahomo/miniproject5_kms/pull/60) 운영 감시 두 서버 · 자원 정리 런북 · SSH 22 좁힘 | 병합됨 `b2e1df0` — 감시 [실행](https://github.com/metahomo/miniproject5_kms/actions/runs/44704300507) 성공 |
 | 결정 #14·#15·#16 | ADR-008·009·007 로 확정, 이슈 닫음 |
 
 ## 7. 연구자 할 일
@@ -155,13 +157,13 @@ flowchart LR
 - [x] PR #22 → #23 병합
 - [x] 조감도 화면판 받기(git pull)
 - [x] "배포 시작해"
-- [ ] PR #59 병합 허락
+- [x] PR #59 병합 허락
 - [ ] 발표 직전 과제 도메인 KMS 화면 확인
-- [ ] SSH 22번 닫기 결정
+- [x] SSH 22번 결정(좁히기로 수행)
 
 ## 8. 사령관이 할 일
 
 1. ~~버킷·저장소 변수, HTTPS·Tailscale, v0.1.1 첫 배포, 승격·되돌리기·다시 앞으로~~ — 2026-11-19 완료
-2. PR #59 병합(연구자 허락 뒤) · 운영 감시에 최종 도메인 /health 추가 제안 · teardown 런북 최종 서버 절 새로 쓰기
-3. 마감 직전: SSH 22번 닫기 → #1·#8
+2. ~~PR #59 병합 · 운영 감시 최종 도메인 · teardown 런북 · SSH 22~~ — 11-20 완료([PR #60](https://github.com/metahomo/miniproject5_kms/pull/60))
+3. KMS 연구 보고서 기능(웹 생성·시연) — 1·2단계 절차로 설계 기록부터
 4. 발표 뒤: 자원 정리 런북 ③ → #11 → Done 16/16
