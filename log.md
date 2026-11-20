@@ -119,3 +119,17 @@ tags:
 2. 운영 감시(`uptime.yml`)는 작업용 서버만 본다 — 최종 도메인 `/health` 도 넣을지 결정.
 3. 낡은 서술(`13.237.237.56` 을 최종 서버로 쓴 옛 문서: R1·teardown·옛 보고서)은 기록으로 두고, 런북 teardown 의 최종 서버 절은 새 서버 기준으로 다시 씀.
 4. 마감 직전 SSH 22번 닫기(연구자 결정) → #1·#8, 발표 뒤 자원 정리 → #11.
+
+## 2026-11-20 저녁 2 — 남은 할 일 네 가지 (연구자 지시 "모두 수행")
+
+한 일
+
+- PR [#59](https://github.com/metahomo/miniproject5_kms/pull/59) 병합(`d28ed9f`).
+- 운영 감시 [`uptime.yml`](./.github/workflows/uptime.yml): 매시간 두 서버(최종 `https://nlpwizard.eta.pyhub.kr/health` · 작업용) 를 따로 본다(`fail-fast: false`).
+- [자원 정리 런북](./runbooks/teardown.md) 다시 씀: 절차 ① = 최종 서버(54.253.32.153) 정리(FINAL_ENABLED 끄기 → Mac 터널 → 러너 `paperclf-final` → 앱 → Caddy → 폴더 → 발표 뒤 인스턴스·고정 IP), ③ = 작업용 서버. 옛 13.237.237.56 절차 제거. 터널 끄기 패턴은 실제 `ps` 명령줄로 대조함.
+- SSH 22번: 두 서버 모두 **Mac/연구자 공인 IP 하나 + Lightsail 브라우저 SSH** 로 좁힘(80·443 은 전체). 완전히 닫지 않은 이유 — KMS 웹 터널이 Mac 에서 22 로 붙는다(Mac 은 tailnet 밖). 확인: Mac SSH 성공, 두 서버 터널 LISTEN, 도메인 KMS 200·`/health` 200, 작업용 KMS 200·`/health` 200. [작업용 서버 런북](./runbooks/work-server.md) 다 절에 기록.
+
+할 일
+
+1. 공인 IP 가 바뀌면 터널·SSH 가 끊긴다 — 콘솔에서 SSH 규칙 IP 를 바꾼다(런북 다 절).
+2. 발표 뒤 자원 정리 런북 ①·③ (#11).
