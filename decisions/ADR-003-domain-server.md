@@ -15,6 +15,11 @@ decider: 연구자
 
 연구자 지시(2026-11-18): 도메인은 **`nlpwizard.eta.pyhub.kr`**, 서버는 **`13.237.237.56`** 으로 한다.
 
+## 갱신 (2026-11-20)
+
+- 도메인은 그대로, **서버는 `54.253.32.153`**(연구자 프로젝트 계정 Lightsail, 고정 IP `paperclf-final-ip`)으로 바뀌었다. 연구자가 A 레코드를 바꿨다(2026-11-20 16:46 HTTPS 개통). `13.237.237.56` 은 처음부터 우리 열쇠가 없던 서버였다.
+- 첫 화면은 KMS 웹(접속 암호), `/health`·`/predict`·`/model`·`/mcp` 는 paperclf — [최종 서버 런북](../runbooks/final-server.md), `deploy/lightsail/caddy/Caddyfile`.
+
 ## 확인한 현재 상태 (2026-11-18, 사령관이 읽기 전용으로 확인)
 
 | 항목 | 결과 | 확인 방법 |

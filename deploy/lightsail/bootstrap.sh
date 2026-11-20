@@ -26,9 +26,11 @@ echo "① 폴더"
 sudo install -d -o ec2-user -g ec2-user /srv/paperclf /srv/paperclf/models /srv/caddy
 curl -fsSL "$RAW/compose.yml" -o /srv/paperclf/compose.yml
 curl -fsSL "$RAW/server.sh" -o /srv/paperclf/server.sh
-# Caddyfile 이 바뀐 때만 덮어쓰고 ③에서 다시 시작한다(admin off 라 reload 가 없다). 손으로 넣은 블록(KMS 등)이 있으면 지워지니 runbooks/final-server.md 참고
+# Caddyfile 이 바뀐 때만 덮어쓰고 ③에서 다시 시작한다(admin off 라 reload 가 없다). KMS 블록은 저장소 파일에 들어 있다(해시는 아래 kms.hash)
 CADDY_CHANGED=0
 curl -fsSL "$RAW/caddy/$CADDYFILE" -o /tmp/Caddyfile.new
+# KMS 웹 접속 암호 해시는 서버에만 둔다 — /srv/caddy/kms.hash 가 있으면 자리표시 KMS_HASH 를 채운다(없으면 KMS 블록이 검사에서 걸리니 runbooks/final-server.md)
+[ -f /srv/caddy/kms.hash ] && sed -i "s|KMS_HASH|$(sudo cat /srv/caddy/kms.hash)|" /tmp/Caddyfile.new
 if ! cmp -s /tmp/Caddyfile.new /srv/caddy/Caddyfile; then
   [ -f /srv/caddy/Caddyfile ] && cp /srv/caddy/Caddyfile /srv/caddy/Caddyfile.bak
   cp /tmp/Caddyfile.new /srv/caddy/Caddyfile && CADDY_CHANGED=1 # cp: bind mount 한 파일을 그대로 두고 내용만 바꾼다

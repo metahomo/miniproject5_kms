@@ -102,3 +102,20 @@ tags:
 - 승격 m20261119-7·8 → 되돌리기 7 → 다시 8, 미통과 모델 차단(F1 0.9021), 코드 되돌리기 v0.1.0 → 다시 v0.1.1 → 이슈 #2·#4·#5·#10 닫음.
 - 런북 3개(배포·승격·롤백) PR #25. 운영 장부 DB(서버 `/srv/ledger`, 실행마다 기록·배포 기록·백업, parity 실패 시험 입력) PR #26 → 정상 m20261119-11 승격·기록, parity 실패 -12 차단·기록 → 이슈 #3 닫음.
 - 보드 Done 13/16. 남은 카드: #1(22번·정리), #8(22번), #11(마감·발표).
+
+## 2026-11-20 저녁 — 과제 도메인 첫 화면 = KMS 웹, 운영 점검
+
+한 일
+
+- KMS 지식베이스 내용 채움: 저널 평가 646개(핵심 3·후보 52·제외 591), 주제 보고서 `261120.md`·주제 MOC, Obsidian 노트 6,061개(논문 4,374·저널 1,685). 자동 수집(6시간마다)에 `journals`·`report`·`notes` 를 붙임. 운영 DB 는 추가만(ADR-004), 작업 전 백업.
+- 연구자 결정: `https://nlpwizard.eta.pyhub.kr` 첫 화면 = KMS 웹(HTTPS + 접속 암호). `/health`·`/predict`·`/model`·`/mcp` 는 paperclf 그대로. API 소개 화면·`/docs` 는 `https://54-253-32-153.sslip.io`, KMS 같은 화면은 `https://kms.54-253-32-153.sslip.io`.
+- 최종 서버: Mac → 서버 역방향 SSH 터널(`~/.claude/autonomy/kms-tunnel-final-loop.sh`, 끊기면 다시 이음) + Caddy. 저장소 [`Caddyfile`](./deploy/lightsail/caddy/Caddyfile) 을 서버와 같게 맞춤 — 공개 저장소라 해시는 자리표시 `KMS_HASH`, `bootstrap.sh` 가 서버 `/srv/caddy/kms.hash`(root 600, 두 서버)로 채움. DNS 없는 이름(`kms.nlpwizard…`)의 인증서 재시도 실패와 아무것도 없는 8090 으로 가던 `:80` 블록을 없앰.
+- 점검 결과(2026-11-20 17시대, 명령 출력): 도메인 첫 화면 암호 없이 `401`·암호로 `200`(대시보드 · KMS), `/health` ok v0.1.6 · m20261120-24, `/predict` 토큰 없이 `401`·토큰으로 `include` 0.9967, `/mcp` 토큰 없이 거절, HTTP → `308`, HSTS. 작업용 서버 ok. pytest 83 통과·6 건너뜀. CI 최근 6회 성공, 러너 둘 다 online, 열린 PR 0, Dependabot 열린 경고 0.
+- 문서 최신화: README·시연 대본 ①·[최종 서버 런북](./runbooks/final-server.md)(KMS 절 새로)·[아키텍처 개요](./architecture/overview.md)·[ADR-003](./decisions/ADR-003-domain-server.md) 갱신 절.
+
+할 일
+
+1. 발표 직전: KMS 화면 확인 — Mac 을 다시 켰다면 KMS `serve` 와 터널 두 개를 다시 띄운다(런북 KMS 절 3·4단계, launchd·crontab 은 이 계정에서 막힘).
+2. 운영 감시(`uptime.yml`)는 작업용 서버만 본다 — 최종 도메인 `/health` 도 넣을지 결정.
+3. 낡은 서술(`13.237.237.56` 을 최종 서버로 쓴 옛 문서: R1·teardown·옛 보고서)은 기록으로 두고, 런북 teardown 의 최종 서버 절은 새 서버 기준으로 다시 씀.
+4. 마감 직전 SSH 22번 닫기(연구자 결정) → #1·#8, 발표 뒤 자원 정리 → #11.

@@ -8,13 +8,14 @@ tags:
 
 KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과를 **교사 라벨**로 삼아, CPU 로 도는 **학생 모델**(해싱 글자 n-gram → TF-IDF → 로지스틱 회귀, ONNX 서빙)을 학습하고, 검증을 통과한 판만 AWS Lightsail 서버에 자동으로 올린다. 미니 프로젝트 5 "ML 시스템 클라우드 배포" 과제 — [과제 브리프](./sources/project-brief.md).
 
-**지금 운영 중**: <https://nlpwizard.eta.pyhub.kr> (최종) · <https://54-252-22-31.sslip.io/health> (작업용) — app `v0.1.6` · model `m20261120-24`, 2026-11-20
+**지금 운영 중**: <https://nlpwizard.eta.pyhub.kr> (최종 — 첫 화면 KMS 웹, API 는 `/health`·`/predict`·`/model`·`/mcp`) · <https://54-252-22-31.sslip.io/health> (작업용) — app `v0.1.6` · model `m20261120-24`, 2026-11-20
 
 | 주소 | 상태 |
 |---|---|
 | 작업용 서버 <https://54-252-22-31.sslip.io> | R1~R5 모두 여기서 실행·확인 — 게이트 F1 0.9609, parity 5.5e-7, 시험 87개 |
 | 최종 서버 <https://nlpwizard.eta.pyhub.kr> | **운영 중** — 연구자 계정 Lightsail(고정 IP 54.253.32.153), 러너 `paperclf-final`, `FINAL_ENABLED=true` 로 태그 하나가 두 서버에 배포(PR [#45](https://github.com/metahomo/miniproject5_kms/pull/45)·[#56](https://github.com/metahomo/miniproject5_kms/pull/56)) |
-| KMS 웹 <https://kms.54-252-22-31.sslip.io> | 임시 게시 — HTTPS + 접속 암호(basic auth), PR [#51](https://github.com/metahomo/miniproject5_kms/pull/51) |
+| KMS 웹 <https://nlpwizard.eta.pyhub.kr> | **과제 도메인 첫 화면**(2026-11-20 연구자 결정) — HTTPS + 접속 암호(basic auth). Mac KMS → 역방향 SSH 터널 → 최종 서버 Caddy. 같은 화면: <https://kms.54-253-32-153.sslip.io> · 작업용 <https://kms.54-252-22-31.sslip.io>(PR [#51](https://github.com/metahomo/miniproject5_kms/pull/51)) |
+| API 소개 화면·`/docs` <https://54-253-32-153.sslip.io> | 최종 서버의 paperclf 전체(과제 도메인 첫 화면이 KMS 로 바뀌어 여기로) |
 
 ## 한 줄 흐름
 

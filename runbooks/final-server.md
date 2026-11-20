@@ -1,6 +1,6 @@
 ---
 title: 최종 결과물 서버 (nlpwizard.eta.pyhub.kr)
-description: 최종 서버 13.237.237.56 에 eta 와 함께 paperclf 를 올리는 절차 — 연구자 선행 작업·점검·준비·배포·확인·되돌리기, 선택: KMS 웹 게시
+description: 최종 서버 54.253.32.153(nlpwizard.eta.pyhub.kr)에 paperclf 와 KMS 웹을 올리는 절차 — 점검·준비·배포·확인·되돌리기, KMS 웹(Mac 터널)
 tags:
   - runbook
 requirement: R1
@@ -11,9 +11,18 @@ requirement: R1
 
 ## 언제 쓰나
 
-최종 발표용 서버(Lightsail, `13.237.237.56`, 강의 앱 delivery-eta 가 이미 돌고 있다)에 paperclf 를 함께 올릴 때. 작업용 서버(`54.252.22.31`)는 그대로 두고 **두 서버에 같이** 배포한다.
+최종 발표용 서버(Lightsail `Amazon_Linux_2023-1`, 고정 IP `54.253.32.153` = `paperclf-final-ip`, 연구자 프로젝트 계정 591255906991)에 paperclf 를 올리고, 과제 도메인 첫 화면으로 KMS 웹을 낼 때. 작업용 서버(`54.252.22.31`)는 그대로 두고 **두 서버에 같이** 배포한다.
 
-이 서버는 작업용과 다른 AWS 계정에 있다(소유 계정 확인 중 — 연구자 nlpwizard 계정 프로젝트 591255906991 에는 없음). 그래서 작업용 서버의 모델 버킷에 키 없이 붙을 수 없고, 모델은 **같은 Actions 실행의 산출물**에서 직접 받는다.
+> 2026-11-20 갱신: 처음 계획한 `13.237.237.56`(강의 앱 delivery-eta 서버)은 우리 열쇠가 없어 쓰지 않았다. 새 인스턴스를 만들고 연구자가 `nlpwizard.eta.pyhub.kr` A 레코드를 `54.253.32.153` 으로 바꿨다. 이 서버에는 eta 가 없다 — 아래 eta 관련 줄(8090 이전 등)은 해당 없음.
+
+| 주소 | 가는 곳 |
+|---|---|
+| `https://nlpwizard.eta.pyhub.kr/` 와 그 밖의 경로 | KMS 웹(접속 암호) — Mac `127.0.0.1:10001` → 역방향 터널 → 서버 `127.0.0.1:10011` |
+| `https://nlpwizard.eta.pyhub.kr/{health,predict,model,mcp}` | paperclf `127.0.0.1:8080` |
+| `https://54-253-32-153.sslip.io` | paperclf 전체(API 소개 화면·`/docs`) |
+| `https://kms.54-253-32-153.sslip.io` | KMS 웹(접속 암호) |
+
+이 서버는 작업용과 다른 AWS 계정에 있다. 그래서 작업용 서버의 모델 버킷에 키 없이 붙을 수 없고, 모델은 **같은 Actions 실행의 산출물**에서 직접 받는다.
 
 ## 어떻게 도나 (한눈에)
 
@@ -35,19 +44,19 @@ requirement: R1
 
 1. Mac 에서 공개키 한 줄을 복사한다: `cat ~/.ssh/id_ed25519_paperclf.pub` (`ssh-ed25519 … commander@studio-c-paperclf` 한 줄, **`.pub` 만** — 확장자 없는 파일은 비밀키라 절대 붙이지 않는다)
 2. 이 서버가 있는 계정으로 Lightsail 콘솔에 로그인한다
-3. 인스턴스(`13.237.237.56`) → **Connect using SSH** (브라우저 터미널이 열린다)
+3. 인스턴스(`54.253.32.153`) → **Connect using SSH** (브라우저 터미널이 열린다)
 4. 터미널에 `whoami` → 사용자 이름을 적어 둔다(이 문서는 `ec2-user` 로 쓴다)
 5. `mkdir -p ~/.ssh && chmod 700 ~/.ssh`
 6. `echo '<1에서 복사한 한 줄>' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys`
-7. Mac 에서 확인: `ssh -i ~/.ssh/id_ed25519_paperclf ec2-user@13.237.237.56 true` → 오류 없이 끝나면 성공
+7. Mac 에서 확인: `ssh -i ~/.ssh/id_ed25519_paperclf ec2-user@54.253.32.153 true` → 오류 없이 끝나면 성공
 
 사용자 이름이 `ec2-user` 가 아니면 `bootstrap.sh` 의 `ec2-user`(폴더 소유자·러너 서비스 사용자) 두 곳을 바꾼 뒤 돌린다.
 
 ## 전제조건
 
-- [ ] 0절 완료 (Mac 에서 `ssh` 가 된다). 아래 명령은 `S=ec2-user@13.237.237.56` 로 줄여 쓴다(키 파일은 `~/.ssh/config` 에 두거나 `ssh -i …` 를 붙인다)
-- [ ] 서버 관리자 승인: eta 를 `127.0.0.1:8090` 으로 옮기고 Caddy 가 80·443 을 맡는다(IP 로 오는 요청은 그대로 eta)
-- [ ] DNS `nlpwizard.eta.pyhub.kr` → `13.237.237.56` (2026-11-20 확인: `dig +short nlpwizard.eta.pyhub.kr`), Lightsail 방화벽 TCP 80·443 열림
+- [ ] 0절 완료 (Mac 에서 `ssh` 가 된다). 아래 명령은 `S=ec2-user@54.253.32.153` 로 줄여 쓴다(키 파일은 `~/.ssh/config` 에 두거나 `ssh -i …` 를 붙인다)
+- [ ] DNS `nlpwizard.eta.pyhub.kr` → `54.253.32.153` (2026-11-20 확인: `dig +short nlpwizard.eta.pyhub.kr`), Lightsail 방화벽 TCP 80·443 열림
+- [ ] KMS 블록을 쓰려면 서버에 접속 암호 해시 `/srv/caddy/kms.hash`(root 600)가 있다 — 아래 "KMS 웹" 1단계
 - [ ] PR #45 가 `main` 에 병합됨 — `bootstrap.sh` 는 `main` 의 파일을 받는다
 
 ## 절차
@@ -75,9 +84,9 @@ requirement: R1
 | HTTPS | `curl -fsS https://nlpwizard.eta.pyhub.kr/health` | `"status":"ok"`, 작업용 서버와 같은 `app_version`·`model_version` |
 | HTTP → HTTPS | `curl -sI http://nlpwizard.eta.pyhub.kr/health \| head -1` | `308 Permanent Redirect` |
 | 보호 | `curl -s -o /dev/null -w '%{http_code}\n' -X POST https://nlpwizard.eta.pyhub.kr/predict -H 'content-type: application/json' -d '{"title":"x"}'` | `401` |
-| MCP | `curl -fsS -X POST https://nlpwizard.eta.pyhub.kr/mcp -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'` | `tools` 목록 JSON |
+| MCP | 토큰 없이 `curl -s -X POST https://nlpwizard.eta.pyhub.kr/mcp -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'` | `토큰이 필요하다` (토큰을 넣으면 `tools` 목록, 2026-11-20 확인) |
+| KMS 웹 | 암호 없이 `curl -s -o /dev/null -w '%{http_code}\n' https://nlpwizard.eta.pyhub.kr/` · `-u kms:<암호>` 로 다시 | `401` · `200`(제목 `대시보드 · KMS`) |
 | 보안 헤더 | `curl -sI https://nlpwizard.eta.pyhub.kr/health \| grep -iE 'strict-transport\|nosniff\|^server'` | HSTS·nosniff 있음, `Server` 없음 |
-| eta | `curl -fsS http://13.237.237.56/health` | eta 응답(바뀌지 않음) |
 | 판·권한 | `ssh "$S" 'bash /srv/paperclf/server.sh status; ls /srv/paperclf/models; stat -c %a /srv/paperclf/.env'` | 지금 판, 통과 판 폴더(`validated.json` 포함), `600` |
 | 러너 | GitHub → Settings → Actions → Runners | `paperclf`·`paperclf-final` 둘 다 Idle |
 
@@ -105,69 +114,23 @@ requirement: R1
 
 ## (선택) 이 서버에도 장부 DB
 
-작업용 서버 런북 "장부 DB" 1~3단계를 `S=ec2-user@13.237.237.56` 로 그대로 한다(`/srv/ledger/.env` 600, 비밀번호는 서버에서 `openssl rand -hex 24`). 그러면 `promote-final`·`rollback-final` 이 작업용과 똑같이 장부에 기록하고, 트리거가 미통과 판 배포를 거부한다. 백업(`ledger.py backup`)은 작업용 버킷에 쓸 수 없으니(다른 계정) 켜지 않는다 — 백업 위치가 정해지면 따로 한다.
+작업용 서버 런북 "장부 DB" 1~3단계를 `S=ec2-user@54.253.32.153` 로 그대로 한다(`/srv/ledger/.env` 600, 비밀번호는 서버에서 `openssl rand -hex 24`). 그러면 `promote-final`·`rollback-final` 이 작업용과 똑같이 장부에 기록하고, 트리거가 미통과 판 배포를 거부한다. 백업(`ledger.py backup`)은 작업용 버킷에 쓸 수 없으니(다른 계정) 켜지 않는다 — 백업 위치가 정해지면 따로 한다.
 
-## (선택) KMS 웹 게시 — Mac 에서 역방향 SSH 터널
+## KMS 웹 — 과제 도메인 첫 화면 (2026-11-20 운영)
 
-작업용 서버의 "KMS 웹 임시 게시"([work-server.md](./work-server.md), `Caddyfile.work` 의 `kms.` 블록)를 이 서버로 옮길 때만. KMS 웹과 LLM 은 Mac 에서 돌고, 서버는 `127.0.0.1:10011` 로 받은 것을 HTTPS·접속 암호 뒤에서 내보낸다(Caddy 는 `network_mode: host` 라 `127.0.0.1:10011` 에 닿는다).
+KMS 웹과 LLM(공용 Ollama)은 Mac 서버에서 돈다. Mac 이 역방향 SSH 터널로 서버 `127.0.0.1:10011` 에 붙고, Caddy(`network_mode: host`)가 HTTPS·접속 암호 뒤에서 내보낸다. 설정은 저장소 [`deploy/lightsail/caddy/Caddyfile`](../deploy/lightsail/caddy/Caddyfile) 에 다 있다 — 손으로 블록을 넣지 않는다.
 
-방식 고르기 — 서브도메인을 권한다:
-
-| 방식 | 주소 | 필요한 것 | 주의 |
-|---|---|---|---|
-| 가. 서브도메인 | `https://kms.nlpwizard.eta.pyhub.kr` | DNS A 레코드 `kms.nlpwizard.eta.pyhub.kr → 13.237.237.56` (도메인 관리자에게 요청) | 인증서가 따로 발급된다 |
-| 나. 하위 경로 | `https://nlpwizard.eta.pyhub.kr/kms/` | DNS 그대로 | KMS 웹이 `/static`·`/api` 같은 절대 경로를 쓰면 화면이 깨진다 — 먼저 시험 |
+- 하위 경로(`/kms/`) 방식은 쓰지 않는다 — KMS 웹이 `/static`·`/api` 같은 절대 경로를 써서 화면이 깨진다. 그래서 도메인 전체를 KMS 로 주고 paperclf 경로 네 개만 따로 뺐다.
+- 공개 저장소라 접속 암호 해시는 저장소에 없다(자리표시 `KMS_HASH`). `bootstrap.sh` 가 서버의 `/srv/caddy/kms.hash` 로 채운다.
 
 | # | 단계 | 명령·화면 | 기대 결과 |
 |---|---|---|---|
-| 1 | 암호 해시 만들기 (Mac, 원문은 Mac 파일에만) | `docker run --rm -i caddy:2.11.9-alpine caddy hash-password < ~/.config/paperclf/kms-web-password` | `$2a$14$…` 한 줄 (해시 — 저장소에는 넣지 않는다) |
-| 2 | 서버 Caddyfile 에 블록 추가 | `ssh "$S"` 후 `/srv/caddy/Caddyfile` 에 아래 가 또는 나 블록을 넣고 `KMS_HASH` 를 1의 해시로 바꾼다 | 저장소 파일에는 `KMS_HASH` 그대로 |
-| 3 | 검사 | `ssh "$S" 'docker run --rm -v /srv/caddy/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2.11.9-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile'` | `Valid configuration` |
-| 4 | 다시 시작 | `ssh "$S" 'cd /srv/caddy && docker compose restart caddy'` | paperclf·eta 는 그대로 응답 |
-| 5 | 터널 (Mac) | `ssh -i ~/.ssh/id_ed25519_paperclf -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R 127.0.0.1:10011:127.0.0.1:10001 ec2-user@13.237.237.56` (계속 켜 두려면 `~/.claude/autonomy/kms-tunnel-loop.sh` 의 주소만 바꾼 사본을 nohup 으로) | 서버 `127.0.0.1:10011` → Mac `127.0.0.1:10001` |
-| 6 | 확인 | 암호 없이 `curl -s -o /dev/null -w '%{http_code}\n' https://kms.nlpwizard.eta.pyhub.kr/health` → `401`, `-u kms:<암호>` 로 → `status ok` (나 방식은 `…/kms/health`) | |
+| 1 | 암호 해시를 서버에 (처음 한 번) | Mac: `docker run --rm -i caddy:2.11.9-alpine caddy hash-password < ~/.config/paperclf/kms-web-password` 의 한 줄을 서버 `/srv/caddy/kms.hash` 에(`sudo tee`, `sudo chmod 600`) | `sudo ls -l /srv/caddy/kms.hash` → `-rw------- root` |
+| 2 | Caddyfile 적용 | `bash bootstrap.sh final` 다시 돌리기(바뀐 때만 덮어쓰고 다시 시작) | `KMS_HASH` 가 남지 않는다, `Valid configuration` |
+| 3 | 터널 (Mac) | `nohup ~/.claude/autonomy/kms-tunnel-final-loop.sh >/dev/null 2>&1 &` — 끊기면 10초 뒤 다시 잇는다(pid `~/.claude/autonomy/kms-tunnel-final.pid`) | 서버 `ss -ltn \| grep 10011` 에 LISTEN |
+| 4 | KMS 웹 (Mac) | `cd ~/miniproject-kms && .venv/bin/python -m kms.cli serve` 가 떠 있는지 | `curl -s http://127.0.0.1:10001/health` → 200 |
+| 5 | 확인 | 위 "확인" 표의 KMS 웹 줄 | `401` · `200` |
 
-가. 서브도메인 블록 (파일 끝에):
-
-```caddyfile
-kms.nlpwizard.eta.pyhub.kr {
-	encode zstd gzip
-	header {
-		Strict-Transport-Security "max-age=31536000"
-		X-Content-Type-Options "nosniff"
-		Referrer-Policy "no-referrer"
-		X-Robots-Tag "noindex, nofollow"
-		-Server
-	}
-	basic_auth {
-		kms KMS_HASH
-	}
-	reverse_proxy 127.0.0.1:10011 {
-		header_down -Server
-	}
-}
-```
-
-나. 하위 경로 — `nlpwizard.eta.pyhub.kr { … }` 블록 **안**의 `reverse_proxy 127.0.0.1:8080 { … }` 를 지우고 이것으로 바꾼다:
-
-```caddyfile
-	redir /kms /kms/
-	handle_path /kms/* {
-		header X-Robots-Tag "noindex, nofollow"
-		basic_auth {
-			kms KMS_HASH
-		}
-		reverse_proxy 127.0.0.1:10011 {
-			header_down -Server
-		}
-	}
-	handle {
-		reverse_proxy 127.0.0.1:8080 {
-			header_down -Server
-		}
-	}
-```
-
-- 손으로 넣은 블록은 `bootstrap.sh` 를 다시 돌리면 저장소 Caddyfile 로 덮인다(옛 파일은 `/srv/caddy/Caddyfile.bak`) — 다시 돌린 뒤 2~4단계를 반복한다.
-- 내리기: Mac 터널을 끄고(`kill <터널 pid>`), 서버 Caddyfile 에서 블록을 지운 뒤 `docker compose restart caddy`.
+- Mac 을 다시 켜면 3·4단계를 다시 한다(launchd·crontab 은 이 계정에서 막혀 있다). 발표 직전에 5단계를 본다.
+- 내리기: Mac 터널 끄기(`kill $(cat ~/.claude/autonomy/kms-tunnel-final.pid)` 후 남은 `ssh … -R 127.0.0.1:10011` 프로세스도), 그러면 KMS 경로는 `502`. paperclf 경로는 그대로.
 - 암호 원문·해시를 채팅·저장소·명령 기록에 남기지 않는다.
