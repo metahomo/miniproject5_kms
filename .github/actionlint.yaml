@@ -1,0 +1,2 @@
+self-hosted-runner:
+  labels: [lightsail, paperclf, final] # 작업용 서버 러너(paperclf)·최종 서버 러너(paperclf-final)

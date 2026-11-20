@@ -10,6 +10,12 @@ KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과�
 
 **지금 운영 중**: <https://54-252-22-31.sslip.io/health> (app `v0.1.4` · model `m20261120-17`, 2026-11-20 — 새 데이터로 자동 재학습한 판)
 
+| 주소 | 상태 |
+|---|---|
+| 작업용 서버 <https://54-252-22-31.sslip.io> | R1~R5 모두 여기서 실행·확인 — 게이트 F1 0.9609, parity 5.5e-7, 시험 32개 |
+| 최종 서버 `nlpwizard.eta.pyhub.kr` | 배포 준비만 끝남(PR [#45](https://github.com/metahomo/miniproject5_kms/pull/45), `FINAL_ENABLED` 로 켜기 전엔 동작 없음) — 서버 접근 대기 |
+| KMS 웹 <https://kms.54-252-22-31.sslip.io> | 임시 게시 — HTTPS + 접속 암호(basic auth), PR [#51](https://github.com/metahomo/miniproject5_kms/pull/51) |
+
 ## 한 줄 흐름
 
 ```text
@@ -24,9 +30,9 @@ KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과�
 |---|---|---|---|
 | R1 | Lightsail 인스턴스·버킷 | 인스턴스·버킷(키 없이 읽고 씀) ✔ — 22번 닫기·정리 남음 | [R1](./requirements/R1-lightsail.md) |
 | R2 | CI/CD — 시험 거쳐 서버까지 | ✔ | [v0.1.1 배포](https://github.com/metahomo/miniproject5_kms/actions/runs/44513840582) |
-| R3 | 새 데이터 자동 학습·검증 | ✔ 게이트·parity 실패 시 승격 안 됨, 실행마다 장부 1건 | [게이트 차단](https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566) · [parity 차단](https://github.com/metahomo/miniproject5_kms/actions/runs/44519475156) |
-| R4 | 통과 모델 API 서버 배포 | ✔ | [승격 m20261119-11](https://github.com/metahomo/miniproject5_kms/actions/runs/44519470540) |
-| R5 | 롤백 | ✔ 모델·코드 모두 되돌리고 다시 앞으로 | [→7](https://github.com/metahomo/miniproject5_kms/actions/runs/44514983743) · [→8](https://github.com/metahomo/miniproject5_kms/actions/runs/44515052182) |
+| R3 | 새 데이터 자동 학습·검증 | ✔ 게이트·parity 실패 시 승격 안 됨, 실행마다 장부 1건 | [게이트 차단](https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566) · [parity 차단](https://github.com/metahomo/miniproject5_kms/actions/runs/44519475156) · [새 데이터 자동 재학습 m20261120-17](https://github.com/metahomo/miniproject5_kms/actions/runs/44643935701) |
+| R4 | 통과 모델 API 서버 배포 | ✔ | [승격 m20261119-11](https://github.com/metahomo/miniproject5_kms/actions/runs/44519470540) · [승격 m20261120-17](https://github.com/metahomo/miniproject5_kms/actions/runs/44643935701) |
+| R5 | 롤백 | ✔ 모델·코드 모두 되돌리고 다시 앞으로(모델 되돌리기 실행 약 20초, health 실패 시 자동 복귀 37초) | [→7](https://github.com/metahomo/miniproject5_kms/actions/runs/44514983743) · [→8](https://github.com/metahomo/miniproject5_kms/actions/runs/44515052182) |
 
 진행판: [Projects 칸반](https://github.com/users/metahomo/projects/12) · [마일스톤](https://github.com/metahomo/miniproject5_kms/milestones) · [릴리스](https://github.com/metahomo/miniproject5_kms/releases)
 
@@ -41,8 +47,8 @@ KMS(지식관리시스템)가 모은 논문을 로컬 LLM 이 판정한 결과�
 | `api/` | FastAPI 서빙(`/health` · `/predict` · `/model`), MCP 서버(`classify_paper`), 토큰 인증·사용량 제한, 예측 로그 |
 | `deploy/lightsail/` | 서버 스크립트(`server.sh`), compose, Caddy(HTTPS), 운영 장부 DB(`ledger/`) |
 | `db/init/` | 장부 스키마(트리거가 미통과 모델의 배포 기록을 거부) |
-| `.github/workflows/` | `ci`(코드 판) · `model`(모델 판) · `rollback` |
-| `runbooks/` | [배포](./runbooks/deploy-code.md) · [승격](./runbooks/promote-model.md) · [롤백](./runbooks/rollback.md) · [작업용 서버](./runbooks/work-server.md) · [자원 정리](./runbooks/teardown.md) |
+| `.github/workflows/` | `ci`(코드 판) · `model`(모델 판) · `rollback` · `uptime`(매시간 밖에서 `/health`) |
+| `runbooks/` | [배포](./runbooks/deploy-code.md) · [승격](./runbooks/promote-model.md) · [롤백](./runbooks/rollback.md) · [작업용 서버](./runbooks/work-server.md) · [자원 정리](./runbooks/teardown.md) · [예상 질문](./presentation/06-qa.md) |
 | `decisions/` · `architecture/` | [결정 기록(ADR)](./decisions/index.md) · [아키텍처 개요](./architecture/overview.md) |
 | `experiments/` · `ai-usage/` · `presentation/` | [학습 실행 기록](./experiments/index.md) · [AI 활용 기록](./ai-usage/index.md) · [발표](./presentation/index.md) |
 
