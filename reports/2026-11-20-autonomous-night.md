@@ -13,7 +13,7 @@ date: 2026-11-20
 
 | 항목 | 값 |
 |---|---|
-| 운영 | app `v0.1.4` · model `m20261119-11` · <https://54-252-22-31.sslip.io/health> |
+| 운영 | app `v0.1.4` · model `m20261120-17`(새 데이터로 자동 재학습) · <https://54-252-22-31.sslip.io/health> |
 | 보드 | Done 13/16 — 남은 #1·#8(22번 닫기·정리), #11(마감·발표) |
 | 릴리스 | [v0.1.1](https://github.com/metahomo/miniproject5_kms/releases/tag/v0.1.1) · [v0.1.4](https://github.com/metahomo/miniproject5_kms/releases/tag/v0.1.4) |
 | 조감도 | 연구자 PC `reports/birdseye-update.html` — 5분마다 자동 받기, 1분마다 새로 고침 |
@@ -33,6 +33,7 @@ date: 2026-11-20
 | 문서 상태 맞춤 | 저장소 전체 상대 링크 깨짐 0, 낡은 "버킷 미생성·배포 꺼 둠" 정리 | PR #32 |
 | 보안 헤더 | HTTPS 응답에 HSTS 1년·nosniff·no-referrer, Server 헤더 숨김 — 적용·확인 | PR #41 |
 | 운영 감시 | 매시간 밖에서 `/health`(uptime 워크플로), 실패 시 GitHub 알림 — 첫 실행 성공 | PR #42 |
+| **새 데이터 자동 재학습** | KMS 11-20 수집 새 논문 7편 → 교사 라벨(include 6·exclude 1) → 스냅숏 → main 병합만으로 자동 학습·게이트 F1 0.9609·parity 5.5e-7·승격 m20261120-17·장부 기록 — R3 의 실제 흐름 | PR #44, [실행](https://github.com/metahomo/miniproject5_kms/actions/runs/44643935701) |
 | 조감도 | 흐름도에 운영 장부·API 보호, 단계·카드 상태는 `gh` 조회 생성기로 | main 자동 푸시 |
 | KMS | 수집 2회(fetched 1,200 · unique 867 · 새 논문 0 — OpenAlex 응답이 UTC 날짜별 캐시), 6시간마다 예약. KMS 웹 `127.0.0.1:10001` 다시 띄움(works 867) | — |
 
@@ -41,7 +42,7 @@ date: 2026-11-20
 - [ ] SSH 22번 닫기 시점 — 닫으면 #1·#8 → Done 15/16 (Mac 에서 서버 SSH 는 끊긴다, 배포·승격은 러너로 계속)
 - [ ] 자원 정리 시점(발표 뒤) — [자원 정리 런북](../runbooks/teardown.md) ③, 장부 백업 먼저 PC 로
 - [ ] KMS 의미 검색 임베딩(`kms embed`) — DB 쓰기라 위임 범위(수집 추가만) 밖으로 보고 보류
-- [ ] KMS 수집 쿼리 확대 — 지금 1,200건 상한이라 새 논문이 잘 안 들어온다(`topics.yaml` 변경 필요)
+- [ ] KMS 수집 쿼리 확대 — 1,200건 상한이라 하루 새 논문이 적다(11-20 은 7편, `topics.yaml` 변경 필요)
 - [ ] GitHub Wiki 첫 페이지 — 웹 화면에서만 만들 수 있다
 - [ ] AI 활용 기록·ADR·개선점의 "연구자 언어" 칸 다듬기
 
