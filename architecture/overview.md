@@ -47,7 +47,7 @@ flowchart LR
 
 ## 인프라
 
-서버(R1~R5 수행): 작업용 Lightsail `Amazon_Linux_2026_kms`, 고정 IP `54.252.22.31`, HTTPS `https://54-252-22-31.sslip.io` — [작업용 서버 런북](../runbooks/work-server.md). 최종 결과물 게시 서버: `nlpwizard.eta.pyhub.kr` (`13.237.237.56`) — [ADR-003](../decisions/ADR-003-domain-server.md).
+서버(R1~R5 수행): 작업용 Lightsail `Amazon_Linux_2026_kms`, 고정 IP `54.252.22.31`, HTTPS `https://54-252-22-31.sslip.io` — [작업용 서버 런북](../runbooks/work-server.md). 최종 결과물 게시 서버: `nlpwizard.eta.pyhub.kr` → 연구자 프로젝트 계정 Lightsail `54.253.32.153`(2026-11-20 DNS 변경, 처음 [ADR-003](../decisions/ADR-003-domain-server.md)의 `13.237.237.56` 은 우리 열쇠가 없는 서버였다) — 첫 화면은 KMS 웹(Mac 터널), API 경로는 paperclf. [최종 서버 런북](../runbooks/final-server.md).
 
 공개 API: `/predict` 는 토큰 인증·IP 별 분당 60 제한(v0.1.3), `/health` 는 공개 — [코드 배포 런북](../runbooks/deploy-code.md).
 

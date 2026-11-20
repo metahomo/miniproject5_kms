@@ -18,7 +18,7 @@ tags:
 | [ADR-006](./ADR-006-gate-parity.md) | 게이트 시험지·지표·임계값과 parity 허용 오차 (#12 · #13) | accepted |
 | [ADR-005](./ADR-005-student-model-snapshot.md) | 배포 모델(교사 LLM → 학생 TF-IDF 로지스틱)과 원문 없는 라벨 스냅숏 | accepted |
 | [ADR-004](./ADR-004-kms-auto-collection-unfreeze.md) | KMS 참고문헌·운영 DB 동결을 자동 수집에 한해 푼다 | accepted |
-| [ADR-003](./ADR-003-domain-server.md) | 서비스 도메인 nlpwizard.eta.pyhub.kr · 서버 13.237.237.56 | accepted |
+| [ADR-003](./ADR-003-domain-server.md) | 서비스 도메인 nlpwizard.eta.pyhub.kr · 서버 13.237.237.56 → 54.253.32.153(2026-11-20) | accepted |
 | [ADR-002](./ADR-002-postgresql.md) | 모델·예측 장부 DB 로 PostgreSQL 을 쓴다 | accepted |
 
 ## 아직 정하지 않은 것

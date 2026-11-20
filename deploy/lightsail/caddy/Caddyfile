@@ -1,24 +1,60 @@
-# 한 서버에 두 앱 — Caddy 가 80/443 을 맡고 이름으로 나눈다 (2026-11-19 연구자 결정: 공존)
-#   nlpwizard.eta.pyhub.kr → paperclf(127.0.0.1:8080), HTTPS 인증서는 Caddy 가 자동 발급
-#   그 밖(IP 로 직접, localhost) → 기존 delivery-eta(127.0.0.1:8090)
+# 최종 서버(연구자 프로젝트 계정 Lightsail, 고정 IP 54.253.32.153) — Caddy 가 80/443 을 맡는다
+#   nlpwizard.eta.pyhub.kr  → 첫 화면 = KMS 웹(2026-11-20 연구자 결정), 프로젝트 API 경로(/health /predict /model /mcp)만 paperclf
+#   54-253-32-153.sslip.io  → paperclf 전체(첫 화면 소개·/docs 포함)
+#   kms.54-253-32-153.sslip.io → KMS 웹
+# KMS 웹은 Mac 서버(127.0.0.1:10001)에서 돌고, 역방향 SSH 터널로 이 서버 127.0.0.1:10011 에 들어온다(runbooks/final-server.md).
+# 보호: HTTPS + 접속 암호(무작위 24자, 원문은 Mac ~/.config/paperclf/kms-web-password). KMS 18절
+#   저장소에는 자리표시 KMS_HASH 만 둔다(공개 저장소). bootstrap.sh 가 서버의 /srv/caddy/kms.hash(600) 로 채운다
+#
+# `:80` 모두 받기 블록은 두지 않는다 — 위 이름의 80 번 요청은 Caddy 가 HTTPS 로 돌려보내고,
+# IP 로 직접 오는 평문 HTTP 를 앱에 넘기면 HTTPS 를 건너뛰는 길이 생긴다. 이 서버에는 eta 가 없다.
 {
 	admin off
 }
 
-# 54-253-32-153.sslip.io — 최종 서버 고정 IP(54.253.32.153) 이름. 도메인 레코드를 이 IP 로 바꾸기 전에도 HTTPS 로 확인 (2026-11-20)
-nlpwizard.eta.pyhub.kr, 54-253-32-153.sslip.io {
-	encode zstd gzip
+(security_headers) {
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "no-referrer"
 		-Server
 	}
+}
+
+(kms_web) {
+	header X-Robots-Tag "noindex, nofollow"
+	basic_auth {
+		kms KMS_HASH
+	}
+	reverse_proxy 127.0.0.1:10011 {
+		header_down -Server
+	}
+}
+
+nlpwizard.eta.pyhub.kr {
+	encode zstd gzip
+	import security_headers
+	@paperclf path /health /predict /model /mcp
+	handle @paperclf {
+		reverse_proxy 127.0.0.1:8080 {
+			header_down -Server
+		}
+	}
+	handle {
+		import kms_web
+	}
+}
+
+54-253-32-153.sslip.io {
+	encode zstd gzip
+	import security_headers
 	reverse_proxy 127.0.0.1:8080 {
 		header_down -Server
 	}
 }
 
-:80 {
-	reverse_proxy 127.0.0.1:8090
+kms.54-253-32-153.sslip.io {
+	encode zstd gzip
+	import security_headers
+	import kms_web
 }
