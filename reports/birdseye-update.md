@@ -6,7 +6,7 @@ tags:
   - birdseye
 date: 2026-11-19
 ---
-# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-20 18:35)
+# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-20 18:50)
 
 사령관이 늘 관리하는 1호 목록이다([사령관 지침](../CLAUDE.md) 1절 절대규칙). 이 파일은 이름·위치를 바꾸지 않고, 진행이 바뀔 때마다 이 자리에서 보강한다. 화면판(html)은 `~/.claude/birdseye/build.py` 가 gh 조회로 만든다. 화면으로 보기: `git pull` 뒤 같은 폴더의 `birdseye-update.html` 을 브라우저로 연다.
 
@@ -14,6 +14,7 @@ date: 2026-11-19
 
 | 시각 | 바뀐 것 |
 |---|---|
+| 11-20 18:50 | KMS 연구 보고서 v3 채택(map v2 칸 요약: 77초·인용 27/30, 동향 연도순·방법 표본/분석·공백·제언 제자리) · 시연 대본 ⑩ 추가 [PR #61](https://github.com/metahomo/miniproject5_kms/pull/61) · KMS 웹 보완 047 운영 반영 — 템플릿 7회 대입 끝 채택안 "보정안 A2"(학술 테마 + Tabler식 넓은 본문·표 + 금색 절 표시줄 + 휴대폰 보정), 시각 현지 형식 11-20 18:44, 작업 이름 한글. 시험 888 통과(실패 2 기존) |
 | 11-20 18:35 | ✅ KMS 연구 보고서 첫 실제 생성 — 과제 도메인 KMS 웹 "연구 보고서" 화면(S14), 공용 Ollama qwen3 4B 로 30초, 근거 30편·인용 19편·참고문헌은 DB 값만·문장마다 인용. 절차: 앞단 A1~A4 → 목표 설계 4종(형식 점검 4/4) → 명세 046(analyze HIGH 0) → 구현(시험 863 통과, 실패 2 기존) → 시연. 다음: 절 반복 줄이기·폼 배치(converge) |
 | 11-20 17:49 | 남은 할 일 네 가지 완료 — PR #59 병합, 운영 감시 두 서버([실행 44704300507](https://github.com/metahomo/miniproject5_kms/actions/runs/44704300507) 최종·작업용 모두 성공), 자원 정리 런북 새 최종 서버 기준, SSH 22 = Mac 공인 IP + 브라우저 SSH(KMS 터널 때문에 완전 닫기 대신) — [PR #60](https://github.com/metahomo/miniproject5_kms/pull/60) 병합 |
 | 11-20 17:24 | 과제 도메인 첫 화면 = KMS 웹 — https://nlpwizard.eta.pyhub.kr (HTTPS·접속 암호), API 경로 /health·/predict·/model·/mcp 는 paperclf 그대로, API 소개·/docs 는 https://54-253-32-153.sslip.io. Mac → 최종 서버 KMS 터널, Caddyfile 저장소·서버 일치(해시는 서버에만), KMS 저널 평가 646·보고서·노트 6,061. 점검 통과(401/200·health ok·predict 401/200·pytest 83). PR #59 검사 통과 — 병합 대기 |
