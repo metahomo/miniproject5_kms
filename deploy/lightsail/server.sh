@@ -4,8 +4,9 @@
 #   server.sh model <모델 판>   /srv/paperclf/models/<판>/ 에 놓인 모델로 바꾼다 (승격·되돌리기 공통)
 #   server.sh status
 set -euo pipefail
+umask 077 # .env(API_TOKEN·LEDGER_DSN)는 setenv 가 새 파일로 바꿔 쓴다 — 새 파일도 600
 cd /srv/paperclf
-touch .env
+touch .env && chmod 600 .env
 setenv() { grep -v "^$1=" .env > .env.new || true; echo "$1=$2" >> .env.new; mv .env.new .env; }
 health() {
   for i in $(seq 1 30); do
