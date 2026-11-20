@@ -21,6 +21,12 @@ curl -fsSL "$RAW/server.sh" -o /srv/paperclf/server.sh
 curl -fsSL "$RAW/caddy/Caddyfile" -o /srv/caddy/Caddyfile
 curl -fsSL "$RAW/caddy/compose.yml" -o /srv/caddy/compose.yml
 
+echo "①-2 API 설정: 장부 네트워크(compose 가 요구), /predict 토큰(이 서버 .env 에만)"
+docker network inspect paperclf-ledger-net >/dev/null 2>&1 || docker network create paperclf-ledger-net >/dev/null
+touch /srv/paperclf/.env && chmod 600 /srv/paperclf/.env
+grep -q "^API_TOKEN=" /srv/paperclf/.env || echo "API_TOKEN=$(openssl rand -hex 24)" >> /srv/paperclf/.env
+grep -q "^RATE_LIMIT_PER_MIN=" /srv/paperclf/.env || echo "RATE_LIMIT_PER_MIN=60" >> /srv/paperclf/.env
+
 echo "② eta 를 Caddy 뒤로 (127.0.0.1:8090)"
 if [ -f /srv/eta/compose.yml ]; then
   curl -fsSL "$RAW/eta-compose.override.yml" -o /srv/eta/compose.override.yml
@@ -32,15 +38,15 @@ echo "③ Caddy"
 for i in $(seq 1 30); do curl -fsS localhost/health >/dev/null 2>&1 && break; sleep 1; done
 curl -fsS localhost/health && echo " ← eta 가 Caddy 뒤에서 응답"
 
-echo "④ 러너 (이 저장소 전용, 이름표 lightsail·paperclf)"
+echo "④ 러너 (이 저장소 전용, 이름 paperclf-final · 이름표 final — 작업용 서버 러너 paperclf 와 잡이 섞이지 않게)"
 if [ ! -d ~/actions-runner-paperclf ]; then
   mkdir ~/actions-runner-paperclf && cd ~/actions-runner-paperclf
   curl -fsSL -o runner.tar.gz "https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/actions-runner-linux-x64-$RUNNER_VERSION.tar.gz"
   echo "$RUNNER_SHA256  runner.tar.gz" | sha256sum -c -
   tar xzf runner.tar.gz && rm runner.tar.gz
   read -rsp "러너 등록 토큰: " TOKEN; echo
-  ./config.sh --url "https://github.com/$REPO" --token "$TOKEN" --name paperclf --labels lightsail,paperclf --unattended
+  ./config.sh --url "https://github.com/$REPO" --token "$TOKEN" --name paperclf-final --labels final --unattended
   sudo ./svc.sh install ec2-user
   sudo ./svc.sh start
 fi
-echo "끝. GitHub → Settings → Actions → Runners 에 paperclf 가 Idle 이면 성공"
+echo "끝. GitHub → Settings → Actions → Runners 에 paperclf-final 이 Idle 이면 성공. 저장소 변수 FINAL_ENABLED=true 로 최종 서버 배포를 켠다"

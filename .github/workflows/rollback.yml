@@ -40,3 +40,17 @@ jobs:
           aws s3 cp current.json "s3://$BUCKET/models/current.json"
       - name: 장부 백업 (롤백 직후, ADR-008)
         run: python3 deploy/lightsail/ledger/ledger.py backup
+
+  rollback-final: # 최종 서버 — 그 서버 models/ 에 있는 판으로만 되돌린다(승격된 판은 남아 있다). FINAL_ENABLED=true 일 때만
+    if: vars.FINAL_ENABLED == 'true'
+    runs-on: [self-hosted, final]
+    concurrency: { group: final, cancel-in-progress: false }
+    env:
+      VER: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: cp deploy/lightsail/compose.yml deploy/lightsail/server.sh /srv/paperclf/
+      - name: 판 이름 검사
+        run: '[[ $VER =~ ^m[0-9]{8}-[0-9]+$ ]] || { echo "모델 판 형식이 아니다: $VER" >&2; exit 1; }'
+      - run: bash /srv/paperclf/server.sh model "$VER"
+

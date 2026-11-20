@@ -157,6 +157,30 @@ jobs:
       - name: 장부 백업 (승격 직후, ADR-008)
         run: python3 deploy/lightsail/ledger/ledger.py backup
 
+  promote-final: # 최종 서버 — 작업용 서버 승격이 끝난 판을 이번 실행 산출물에서 바로 받는다(다른 AWS 계정이라 버킷 대신). FINAL_ENABLED=true 일 때만
+    needs: [train, promote]
+    if: github.event_name != 'pull_request' && vars.FINAL_ENABLED == 'true'
+    runs-on: [self-hosted, final]
+    concurrency: { group: final, cancel-in-progress: false }
+    permissions:
+      contents: read
+      actions: read
+    env:
+      VER: ${{ needs.train.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: cp deploy/lightsail/compose.yml deploy/lightsail/server.sh /srv/paperclf/
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: model-artifacts
+          path: incoming/
+      - name: 판 두기(이미 있으면 그대로) → 새 판으로 띄우기
+        run: |
+          [[ $VER =~ ^m[0-9]{8}-[0-9]+$ ]] || { echo "판 이름 형식 아님: $VER" >&2; exit 1; }
+          mkdir -p "/srv/paperclf/models/$VER"
+          cp -n incoming/model.onnx incoming/model.json "/srv/paperclf/models/$VER/"
+          bash /srv/paperclf/server.sh model "$VER"
+
   record-failure: # 게이트·parity 에서 멈춘 실행도 장부에 한 건 (R3 기준 4, ADR-009) — 서버 러너가 기록
     needs: [train, parity]
     if: always() && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true' && (needs.train.result == 'failure' || needs.parity.result == 'failure')
