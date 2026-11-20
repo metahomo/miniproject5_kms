@@ -57,7 +57,7 @@ GPU 가 필요한 LLM 의 논문 판정을, GPU 없는 Lightsail 서버에서 �
 | 3 | 코드 판 Flow | pytest 통과해야 이미지, `v*` 태그면 GHCR 푸시, 서버 러너가 교체. `v0.1.1` 태그로 test·image·deploy 성공, 코드 되돌리기 v0.1.0 → v0.1.1(모델 유지) | CI/CD 실행 화면 — [v0.1.1 태그 실행](https://github.com/metahomo/miniproject5_kms/actions/runs/44513840582), [v0.1.0 재배포](https://github.com/metahomo/miniproject5_kms/actions/runs/44453216170), 보조 슬라이드 4장·9장 |
 | 4 | 모델 판 Flow | 게이트 셋(하한 0.80 · 기준선 0.8805 + 0.05 · 운영 대비 −0.02). 전체 데이터 F1 0.9603 통과, 5% 모델 0.9021 실패. parity 허용 1e-5, Actions 5.8e-7, `sublinear_tf` 로 0.0018 어긋남을 잡은 사례 | 게이트·parity 결과 — [정상 실행](https://github.com/metahomo/miniproject5_kms/actions/runs/44451897410), [5% 실패 실행](https://github.com/metahomo/miniproject5_kms/actions/runs/44452096551), 보조 슬라이드 7장·8장 |
 | 5 | 롤백 Flow | 이미지는 그대로, 버킷의 이전 판을 띄운 뒤 `current.json` 을 마지막에 바꾼다 | 롤백 실행 — [→m20261119-7](https://github.com/metahomo/miniproject5_kms/actions/runs/44514983743), [다시 →m20261119-8](https://github.com/metahomo/miniproject5_kms/actions/runs/44515052182) (매번 `/health` `model_version` 일치), 보조 슬라이드 4장·9장 |
-| 6 | 현재 상태 | 코드 판 ✔, 모델 판 ✔, 서버 배포·승격·롤백 ✔(작업용 서버 54.252.22.31), 운영 장부 DB ✔(PR #26). 지금 운영 app v0.1.2 · model m20261119-11. PR #19 · #20 · #21 병합, 이슈 #2 #3 #4 #5 #10 닫음, 보드 Done 13/16 | 보조 슬라이드 9장, [릴리스 v0.1.1](https://github.com/metahomo/miniproject5_kms/releases/tag/v0.1.1) |
+| 6 | 현재 상태 | 코드 판 ✔, 모델 판 ✔, 서버 배포·승격·롤백 ✔(작업용 서버 54.252.22.31), 운영 장부 DB ✔(PR #26). 지금 운영 app v0.1.4 · model m20261120-17(새 데이터 7편으로 자동 재학습, PR #44). PR #19 · #20 · #21 병합, 이슈 #2 #3 #4 #5 #10 닫음, 보드 Done 13/16 | 보조 슬라이드 9장, [릴리스 v0.1.1](https://github.com/metahomo/miniproject5_kms/releases/tag/v0.1.1) |
 
 ## 예상 질문과 답
 
