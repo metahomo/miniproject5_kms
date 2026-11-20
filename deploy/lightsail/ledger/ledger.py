@@ -42,23 +42,32 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-def snapshot_stats(path):
-    """스냅숏 한 파일: 첫 줄 _meta, 나머지는 한 줄에 논문 하나(label: include/exclude/uncertain)."""
-    path = pathlib.Path(path)
-    meta, n, inc, exc = {}, 0, 0, 0
-    with gzip.open(path, "rt", encoding="utf-8") as f:
-        for line in f:
-            row = json.loads(line)
-            if "_meta" in row:
-                meta = row["_meta"]
-                continue
-            n += 1
-            inc += row.get("label") == "include"
-            exc += row.get("label") == "exclude"
-    sha = sha256_file(path)
-    name = path.name.split(".")[0]
-    return {"dataset_id": f"{name}-{sha[:12]}", "bucket_key": f"snapshots/{path.name}", "sha256": sha,
-            "n_rows": n, "n_include": inc, "n_exclude": exc, "label_source": meta}
+def snapshot_stats(paths):
+    """스냅숏 파일 하나 또는 여러 개(이름순, 같은 논문은 뒤 파일이 이김 — training/data.py 와 같음).
+
+    파일마다 첫 줄 _meta, 나머지는 한 줄에 논문 하나(key·label: include/exclude/uncertain).
+    여러 파일이면 데이터셋 하나로 본다: sha256 은 파일별 sha256 을 이어 붙인 것의 sha256.
+    """
+    if isinstance(paths, (str, pathlib.Path)):
+        paths = [paths]
+    paths = sorted((pathlib.Path(p) for p in paths), key=lambda p: p.name)
+    meta, labels, shas = {}, {}, []
+    for path in paths:
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            for i, line in enumerate(f):
+                row = json.loads(line)
+                if "_meta" in row:
+                    meta = row["_meta"]
+                    continue
+                labels[row.get("key") or f"{path.name}:{i}"] = row.get("label")
+        shas.append(sha256_file(path))
+    sha = shas[0] if len(shas) == 1 else hashlib.sha256("".join(shas).encode()).hexdigest()
+    name = paths[-1].name.split(".")[0] if len(paths) == 1 else f"{paths[0].name.split('-')[0]}-x{len(paths)}"
+    n = len(labels)
+    inc = sum(1 for v in labels.values() if v == "include")
+    exc = sum(1 for v in labels.values() if v == "exclude")
+    return {"dataset_id": f"{name}-{sha[:12]}", "bucket_key": "snapshots/" + "+".join(p.name for p in paths), "sha256": sha,
+            "n_rows": n, "n_include": inc, "n_exclude": exc, "label_source": {**meta, "files": [p.name for p in paths]}}
 
 
 def run_record(art_dir, snap_dir, version, run_url, git_sha):
@@ -68,9 +77,9 @@ def run_record(art_dir, snap_dir, version, run_url, git_sha):
     card = json.loads((art / "model.json").read_text(encoding="utf-8")) if (art / "model.json").exists() else {}
     parity = json.loads((art / "parity.json").read_text(encoding="utf-8")) if (art / "parity.json").exists() else None
     snaps = (card.get("data") or metrics.get("data") or {}).get("snapshots") or sorted(p.name for p in pathlib.Path(snap_dir).glob("*.jsonl.gz"))
-    if len(snaps) != 1:
-        raise SystemExit(f"스냅숏이 하나가 아니다: {snaps}")
-    ds = snapshot_stats(pathlib.Path(snap_dir) / snaps[0])
+    if not snaps:
+        raise SystemExit("스냅숏이 없다")
+    ds = snapshot_stats([pathlib.Path(snap_dir) / pathlib.Path(n).name for n in snaps])
     gate = metrics.get("gate_result") or card.get("gate_result") or {}
     parity_diff = None
     if parity:
