@@ -37,7 +37,7 @@ status: draft
 
 ### 시연 직전 (5분 전)
 
-- [ ] 밖에서 `curl -fsS https://54-252-22-31.sslip.io/health` → `"status":"ok"`, `app_version`·`model_version` 을 메모(① 에서 말할 값)
+- [ ] 밖에서 `curl -fsS https://nlpwizard.eta.pyhub.kr/health`(최종) · `curl -fsS https://54-252-22-31.sslip.io/health`(작업용) → `"status":"ok"`, `app_version`·`model_version` 을 메모(① 에서 말할 값)
 - [ ] 터미널 두 개: 왼쪽 Mac(`gh`), 오른쪽 서버 셸(`S=ec2-user@54.252.22.31` 후 `ssh "$S"`)
 - [ ] Actions 탭(`model`·`rollback` 워크플로 화면)을 브라우저에 띄워 둔다
 - [ ] 다른 `model`·`rollback`·`ci` 실행이 돌고 있지 않다 — 서버 잡은 `concurrency: lightsail` 한 줄로 서서 기다린다
@@ -48,7 +48,7 @@ status: draft
 
 | 순서 | 말할 것(한 문장) | 화면·명령(복사해 쓸 수 있게) | 기대 결과 | 막히면(증거 링크) | 걸리는 시간 |
 |---|---|---|---|---|---|
-| ① 지금 판 (R1·R2) | "Lightsail 서버가 HTTPS 로 지금 돌고 있는 코드 판과 모델 판을 스스로 알려 줍니다." | Mac: `curl -fsS https://54-252-22-31.sslip.io/health` | `"status":"ok"`, `app_version`(이미지 태그), `model_version`(운영 모델 판, 2026-11-20 기준 [m20261120-17](../experiments/2026-11-20-m20261120-17.md)) | 코드 배포 v0.1.1 [44513840582](https://github.com/metahomo/miniproject5_kms/actions/runs/44513840582) | 30초 |
+| ① 지금 판 (R1·R2) | "Lightsail 서버가 HTTPS 로 지금 돌고 있는 코드 판과 모델 판을 스스로 알려 줍니다." | 브라우저: <https://nlpwizard.eta.pyhub.kr> 첫 화면 → Mac: `curl -fsS https://nlpwizard.eta.pyhub.kr/health` | `"status":"ok"`, `app_version`(이미지 태그), `model_version`(운영 모델 판, 2026-11-20 기준 [m20261120-17](../experiments/2026-11-20-m20261120-17.md)) | 코드 배포 v0.1.1 [44513840582](https://github.com/metahomo/miniproject5_kms/actions/runs/44513840582) | 30초 |
 | ② 인증 401 → 200 (R4) | "예측 API 는 공개 주소에 있지만 토큰 없이는 거절하고, 토큰은 서버 `.env` 에만 있습니다." | 서버에서 토큰 없이(런북 명령에서 `Authorization` 줄만 뺀 것): `curl -fsS -H 'content-type: application/json' -d '{"title":"…"}' localhost:8080/predict` → 이어서 런북 그대로: `T=$(grep ^API_TOKEN= /srv/paperclf/.env \| cut -d= -f2); curl -fsS -H "Authorization: Bearer $T" -H 'content-type: application/json' -d '{"title":"…"}' localhost:8080/predict` | 첫 번째는 `401` 로 실패, 두 번째는 예측 JSON(`200`) | 2026-11-19 사령관 확인(v0.1.3 배포 직후): 밖에서 토큰 없이 `401`, 서버에서 토큰으로 `200` — [발표 4절](./04-service-for-ai.md), PR #30 | 40초 |
 | ③ (선택) 사용량 제한 429 | "한 IP 가 1분에 60번을 넘으면 `429` 와 `Retry-After` 로 막습니다." | 서버에서(토큰을 넣어 1분 안에 65번): `T=$(grep ^API_TOKEN= /srv/paperclf/.env \| cut -d= -f2); for i in $(seq 1 65); do curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $T" -H 'content-type: application/json' -d '{"title":"t"}' https://54-252-22-31.sslip.io/predict; done \| sort \| uniq -c` → 이어서 Mac 에서 `/health` 의 `guard` | `60 200`, `5 429`, `guard.rejected_rate` 증가 | 2026-11-19 사령관 확인: `60 200` · `5 429`, `/health` guard `rejected_rate: 5` (PR #30) | 20초 |
 | ④ 데이터 변경 → 학습·게이트 차단 (R3) | "일부러 데이터 5% 로 약한 모델을 만들면 게이트가 사람 대신 멈춰 세웁니다." | Mac에서 세 실행을 **연달아 시작**: `gh workflow run model.yml --ref main -f data_fraction=0.05` · `gh workflow run model.yml --ref main -f parity_tol=1e-12` · `gh workflow run model.yml --ref main` → 브라우저 Actions 의 `model` 화면에 세 줄이 뜨는 것만 보이고, 설명은 증거 링크로 | train 의 "검증 게이트" 실패, parity·promote skipped, record-failure 가 장부에 한 건 | 게이트 차단 m20261119-9 (F1 0.9021 < 0.8805+0.05) [44515846566](https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566) · 기록 [m20261119-9](../experiments/2026-11-19-m20261119-9.md) | 시작 20초 + 링크 설명 40초 |
