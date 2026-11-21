@@ -10,6 +10,7 @@ tags:
 
 | 날짜 | 작업 | 도구 | 방식 | 요구사항 |
 |---|---|---|---|---|
+| 2026-11-21 | [발표 총연습(R1~R5·KMS 연구 보고서 실제 실행)](./2026-11-21-rehearsal.md) | Claude Code(사령관) + gh CLI + 로컬 LLM + 서브에이전트 1 | delegate | R1~R5 |
 | 2026-11-19 | [서버 배포·승격·롤백·운영 장부·공개 API 보호(밤)](./2026-11-19-deploy-ledger-night.md) | Claude Code(사령관) + 서브에이전트 4 + gh·AWS CLI | delegate | R1~R5 |
 | 2026-11-19 | [진행판 정리와 연구자 위임 작업(오후) — 부관 6명 병렬 조사 → 사령관 검수(명령으로 재확인) → 이슈 닫기·결정 확정·문서 병렬 작성](./2026-11-19-board-and-delegation.md) | Claude Code(사령관) + 서브에이전트 6 + gh CLI | delegate | R1~R5 |
 | 2026-11-19 | [교사 라벨부터 학습·게이트·ONNX·서빙·워크플로까지](./2026-11-19-student-model-pipeline.md) | Claude Code(사령관) + gh CLI + 로컬 LLM | delegate | R2·R3·R4·R5 |
