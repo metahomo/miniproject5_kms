@@ -78,6 +78,14 @@ def test_health_without_model(monkeypatch):
     assert c.get("/model").status_code == 404
 
 
+def test_health_reports_started_at(monkeypatch):
+    """배포·되돌리기 뒤 컨테이너가 새로 떴는지 /health 만으로 보이게 — UTC ISO 시각."""
+    import re
+
+    h = _client(monkeypatch).get("/health").json()
+    assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", h["started_at"])
+
+
 def test_health_and_model_card_report_version(model_dir, monkeypatch):  # noqa: F811
     c = _client(monkeypatch, str(model_dir), app_version="v1.2.3")
     h = c.get("/health").json()

@@ -2,7 +2,7 @@
 
 - MODEL_IMPL=onnx(기본): MODEL_DIR 의 model.onnx 를 onnxruntime 으로 돌린다(서버용, sklearn 불필요).
 - MODEL_IMPL=sklearn: MODEL_DIR 의 model_sklearn.pkl — parity 비교 기준(학습 그룹 필요).
-- /health 는 app_version(이미지 태그)과 model_version(모델 카드)을 알려 준다.
+- /health 는 app_version(이미지 태그)과 model_version(모델 카드), started_at(이 프로세스가 뜬 UTC 시각 — 배포·되돌리기 뒤 컨테이너가 바뀌었는지)을 알려 준다.
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from api.prediction_log import PredictionLog
 APP_VERSION = os.getenv("APP_VERSION", "dev")
 MODEL_IMPL = os.getenv("MODEL_IMPL", "onnx")
 MODEL_DIR = Path(os.getenv("MODEL_DIR", "artifacts"))
+STARTED_AT = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
 def _load_card() -> dict | None:
@@ -148,6 +149,7 @@ def health() -> dict:
         "app_version": APP_VERSION,
         "model_version": MODEL.version,
         "feature_version": FEATURE_VERSION,
+        "started_at": STARTED_AT,
         "guard": GUARD.status(),
         "prediction_log": {"enabled": PREDICTION_LOG.enabled, "written": PREDICTION_LOG.written, "dropped": PREDICTION_LOG.dropped},
     }
