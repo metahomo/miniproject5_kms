@@ -54,8 +54,8 @@ status: draft
 | ④ 데이터 변경 → 학습·게이트 차단 (R3) | "일부러 데이터 5% 로 약한 모델을 만들면 게이트가 사람 대신 멈춰 세웁니다." | Mac에서 세 실행을 **연달아 시작**: `gh workflow run model.yml --ref main -f data_fraction=0.05` · `gh workflow run model.yml --ref main -f parity_tol=1e-12` · `gh workflow run model.yml --ref main` → 브라우저 Actions 의 `model` 화면에 세 줄이 뜨는 것만 보이고, 설명은 증거 링크로 | train 의 "검증 게이트" 실패, parity·promote skipped, record-failure 가 장부에 한 건 | 게이트 차단 m20261119-9 (F1 0.9021 < 0.8805+0.05) [44515846566](https://github.com/metahomo/miniproject5_kms/actions/runs/44515846566) · 기록 [m20261119-9](../experiments/2026-11-19-m20261119-9.md) | 시작 20초 + 링크 설명 40초 |
 | ⑤ parity 차단 (R3) | "게이트를 통과해도, 서빙 이미지(ONNX)가 원본과 다른 확률을 내면 승격하지 않습니다 — 허용 오차를 1e-12 로 좁혀 일부러 실패시켰습니다." | (④ 에서 이미 시작) 브라우저: 두 번째 실행 화면 | train 성공, parity 실패(최대 차이 약 5.8e-7 > 1e-12), promote skipped | parity 차단 m20261119-12 [44519475156](https://github.com/metahomo/miniproject5_kms/actions/runs/44519475156) · 기록 [m20261119-12](../experiments/2026-11-19-m20261119-12.md) | 40초 |
 | ⑥ 정상 실행 → 승격 (R3·R4) | "기본값으로 돌린 모델은 게이트·parity 를 통과해 버킷에 올라가고, 서버가 새 판으로 바뀝니다." | (④ 에서 이미 시작) 실행 ID 찾기: `gh run list --workflow model.yml -L 3` → `gh run watch <실행 ID> --exit-status` → 끝나면 `curl -fsS https://54-252-22-31.sslip.io/health` | train → parity → promote 셋 다 성공, `model_version` = 새 판 `m<오늘 UTC 날짜>-<실행 번호>` | 승격 m20261119-11 [44519470540](https://github.com/metahomo/miniproject5_kms/actions/runs/44519470540) · m20261119-8 [44514698446](https://github.com/metahomo/miniproject5_kms/actions/runs/44514698446) | 설명 40초 (실행 자체는 미확인 — 끝날 때까지 다음 단계 진행) |
-| ⑦ 롤백 → 다시 앞으로 (R5) | "새 판이 문제라면 이미지는 그대로 두고 모델 판만 직전 판으로 되돌리고, 같은 방법으로 다시 앞으로 갑니다." | **⑥ promote 가 끝난 뒤에만**: `gh workflow run rollback.yml --ref main -f version=m20261120-17` → `gh run watch <실행 ID> --exit-status` → `curl -fsS https://54-252-22-31.sslip.io/health` → 다시 앞으로: `gh workflow run rollback.yml --ref main -f version=<⑥ 새 판>` | 첫 실행 뒤 `model_version` = m20261120-17(시연 전 운영 판), 두 번째 뒤 = ⑥ 새 판 | 되돌리기 8 → 7 [44514983743](https://github.com/metahomo/miniproject5_kms/actions/runs/44514983743) · 다시 앞으로 7 → 8 [44515052182](https://github.com/metahomo/miniproject5_kms/actions/runs/44515052182) | 1분 |
-| ⑧ 장부 조회 (R3·R5) | "통과든 실패든 실행마다 한 건, 배포·되돌리기마다 한 건이 장부에 남습니다." | 서버에서: `python3 /srv/ledger/ledger.py status` (Mac 에서는 `ssh "$S" 'python3 /srv/ledger/ledger.py status'`) | 건수·운영 중인 판 — 오늘 ④⑤ 의 멈춘 실행과 ⑥⑦ 의 배포가 늘어 있다 | 2026-11-19 밤 출력: datasets 2 · model_versions 6(실패 2) · deployments 6, 운영 m20261120-17 (2026-11-20 리허설) — 장부 사본 [학습·검증 기록 색인](../experiments/index.md) | 40초 |
+| ⑦ 롤백 → 다시 앞으로 (R5) | "새 판이 문제라면 이미지는 그대로 두고 모델 판만 직전 판으로 되돌리고, 같은 방법으로 다시 앞으로 갑니다." | **⑥ promote 가 끝난 뒤에만**: `gh workflow run rollback.yml --ref main -f version=<시연 전 운영 판>` (두 서버 **모두**에 있는 판이어야 한다 — 최종 서버는 `ls /srv/paperclf/models` 에 있는 판으로만 간다. 2026-11-21 기준 `m20261120-24`) → `gh run watch <실행 ID> --exit-status` → `curl -fsS https://54-252-22-31.sslip.io/health` → 다시 앞으로: `gh workflow run rollback.yml --ref main -f version=<⑥ 새 판>` | 첫 실행 뒤 `model_version` = 시연 전 운영 판, 두 번째 뒤 = ⑥ 새 판 (두 서버 모두) | 총연습 되돌리기 30 → 24 [44871758164](https://github.com/metahomo/miniproject5_kms/actions/runs/44871758164)(26초) · 다시 앞으로 24 → 30 [44871792610](https://github.com/metahomo/miniproject5_kms/actions/runs/44871792610)(32초) | 1분 |
+| ⑧ 장부 조회 (R3·R5) | "통과든 실패든 실행마다 한 건, 배포·되돌리기마다 한 건이 장부에 남습니다." | 서버에서: `python3 /srv/ledger/ledger.py status` (Mac 에서는 `ssh "$S" 'python3 /srv/ledger/ledger.py status'`) | 건수·운영 중인 판 — 오늘 ④⑤ 의 멈춘 실행과 ⑥⑦ 의 배포가 늘어 있다 | 2026-11-21 총연습 뒤 출력: datasets 3 · model_versions 10 · failed_runs 4 · deployments 10, 운영 m20261121-30 — 장부 사본 [학습·검증 기록 색인](../experiments/index.md) | 40초 |
 | ⑨ (시간 나면) 코드 되돌리기 (R2·R5) | "코드도 같은 생각입니다 — 직전 태그의 ci 실행을 다시 돌리면 그 이미지로 돌아가고, 모델은 그대로입니다." | `gh run list --workflow ci.yml --branch <직전 태그> -L 1` → `gh run rerun <실행 ID>` → `gh run watch <실행 ID> --exit-status` → `curl -fsS https://54-252-22-31.sslip.io/health` | `app_version` = 직전 태그, `model_version` 그대로 | 코드 되돌리기 v0.1.1 → v0.1.0 [44453216170](https://github.com/metahomo/miniproject5_kms/actions/runs/44453216170) · 다시 앞으로 [44513840582](https://github.com/metahomo/miniproject5_kms/actions/runs/44513840582) | 생략 가능 (실행 시간 미확인 — 발표 중엔 링크로만 권함) |
 
 ### ⑩ KMS 연구 보고서 — 교사 라벨을 만든 지식베이스가 직접 쓰는 문헌 검토 초안 (2026-11-20 추가)
@@ -78,21 +78,45 @@ paperclf 의 교사 라벨은 KMS 가 판정한 논문에서 왔다. 그 KMS 가
 2. ⑥ promote 가 아직이면 ⑧ 장부 조회를 먼저 하고, 끝나면 `/health` 로 새 판 → ⑦ 롤백.
 3. 발표 시간이 끝날 때까지 ⑥ 이 안 끝나면 ⑦ 은 증거 링크로만 설명하고, 롤백 실행은 하지 않는다(아래 위험 표 "낡은 실행").
 
-## 3. 시간표 (총 8분 이내 — ⑩ 추가로 1분 늘림)
+## 2-1. 총연습 실측 (2026-11-21, 운영 서버 두 대에서 실제로)
 
-시간은 배정(계획)이다. 실제 실행 소요는 문서에 기록이 없어 미확인.
+대본 순서대로 실제로 돌린 결과다. 화면은 [presentation/img/rehearsal-20261121/](./img/rehearsal-20261121/).
 
-| 구간 | 단계 | 배정 | 누적 |
-|---|---|---|---|
-| 도입 | ① 지금 판 | 0:30 | 0:30 |
-| 공개 API | ② 401 → 200, ③ guard(선택) | 1:00 | 1:30 |
-| 학습 시작·게이트 | ④ 세 실행 시작 + 게이트 차단 설명 | 1:00 | 2:30 |
-| parity | ⑤ | 0:40 | 3:10 |
-| 승격 | ⑥ 설명(+ 끝났으면 `/health`) | 0:40 | 3:50 |
-| 장부 | ⑧ | 0:40 | 4:30 |
-| 롤백 | ⑦ 되돌리기 → 다시 앞으로 (⑥ 끝난 뒤) | 1:00 | 5:30 |
-| KMS 연구 보고서 | ⑩-1~⑩-4 (⑩-2 생성은 ④ 직후 시작, 기다리는 동안 ⑤⑥ 설명) | 1:40 | 7:10 |
-| 여유 | 대기·질문, 시간 나면 ⑨ 는 링크로 | 0:50 | 8:00 |
+| 순서 | 실제로 한 것 | 결과 | 실행 시간 | 증거 |
+|---|---|---|---|---|
+| ① 코드 변경 | PR #63(`/health` 에 `started_at`) → 검사 → 병합 → 태그 `v0.1.7` | 작업용·최종 서버 모두 `v0.1.7`, `started_at` 새 시각 | PR 검사 65초 · 태그 → 두 서버 배포 82초 | [PR #63](https://github.com/metahomo/miniproject5_kms/pull/63) · [44867826301](https://github.com/metahomo/miniproject5_kms/actions/runs/44867826301) |
+| ② 인증 | 서버 안에서 토큰 없이 → 토큰으로 | `401` → `200`(p_include 0.997) | 4초 | 명령 출력 |
+| ③ 사용량 제한 | 1분에 65번 | `60 200` · `5 429`, guard `rejected_rate: 5` | 6초 | 명령 출력 |
+| ④ 게이트 차단 | `data_fraction=0.05` | F1 0.9091 < 기준선 0.882 + 0.05 → 멈춤, 장부 1건(m20261121-27) | 42초 | [44868832284](https://github.com/metahomo/miniproject5_kms/actions/runs/44868832284) |
+| ⑤ parity 차단 | `parity_tol=1e-12` | 최대 차이 5.5e-7 > 1e-12 → 승격 안 함, 장부 1건(m20261121-28) | 90초 | [44868835136](https://github.com/metahomo/miniproject5_kms/actions/runs/44868835136) |
+| ⑥ 새 데이터 → 승격 | KMS 새 논문 3,511편 → 교사 라벨(42분, 준비 단계) → 스냅숏 PR #64 병합 → 자동 실행 | 게이트 F1 0.8289(기준선 0.5635), parity 통과 → 두 서버 `m20261121-30` | 2분 13초(학습 25 · parity 40 · 승격 34 · 최종 승격 24초) | [PR #64](https://github.com/metahomo/miniproject5_kms/pull/64) · [44871559763](https://github.com/metahomo/miniproject5_kms/actions/runs/44871559763) |
+| ⑦ 롤백 → 다시 앞으로 | `version=m20261120-24` → `version=m20261121-30` | 두 서버 모두 24 → 30, `/health` 일치 | 26초 + 32초 | [44871758164](https://github.com/metahomo/miniproject5_kms/actions/runs/44871758164) · [44871792610](https://github.com/metahomo/miniproject5_kms/actions/runs/44871792610) |
+| ⑧ 장부 | `ledger.py status` | datasets 3 · model_versions 10 · failed_runs 4 · deployments 10 | 4초 | 명령 출력 |
+| ⑨ 코드 되돌리기 | `v0.1.6` ci 재실행 → `v0.1.7` ci 재실행 | v0.1.6 에서는 `/health` 에 `started_at` 이 없음(옛 판 증거) → 다시 v0.1.7 | 101초 + 87초 | [44697940413](https://github.com/metahomo/miniproject5_kms/actions/runs/44697940413) · [44867826301](https://github.com/metahomo/miniproject5_kms/actions/runs/44867826301) |
+| ⑩ 연구 보고서 | API 로 생성(주제 코칭 리더십, 질문·연도 대본대로) | 보고서 `261121-1442`, 근거 30 · 인용 27 · 버린 문장 0 | 66초 | KMS 화면 캡처 |
+
+**총연습에서 고친 것**: ⑦ 의 되돌릴 판 `m20261120-17` 은 최종 서버에 없어(최종 서버는 그 서버 `models/` 의 판으로만 간다) rollback-final 이 실패했을 것 — 두 서버 모두에 있는 판으로 바꿨다.
+
+**알아낸 것(결정 필요)**: ① 게이트의 "운영 대비 하락폭" 검사(`GATE_MAX_DROP`)는 `model.yml` 이 `PROD_CARD` 를 넘기지 않아 실제로는 돌지 않는다. ② 새 스냅숏으로 게이트 셋이 180 → 877 편으로 바뀌어(새 논문 697편이 시험지에 들어옴) F1 0.8289 를 이전 판(약 0.96)과 직접 비교할 수 없다 — 하락폭 검사를 켜려면 같은 게이트 셋에서 두 판을 함께 재야 한다.
+
+## 3. 시간표 — 7분판 (2026-11-21 실측 기준)
+
+③·⑨ 는 증거 문장으로만, ⑩-4 는 뺀다. 기다리는 시간은 실측(2-1절)이고, 실행이 말하는 동안 끝나도록 ④ 에서 세 실행과 ⑩ 보고서를 한꺼번에 시작한다.
+
+| 구간 | 단계 | 배정 | 누적 | 그 시점 실행 상태(실측으로 계산) |
+|---|---|---|---|---|
+| 도입 | ① 지금 판 (`/health` — `app_version`·`model_version`·`started_at`) | 0:30 | 0:30 | — |
+| 공개 API | ② 401 → 200 (③ 은 한 문장) | 0:40 | 1:10 | — |
+| 시작 | ④ 세 실행 + ⑩ 보고서 시작 | 0:20 | 1:30 | 모두 시작 |
+| 게이트 | ④ 설명 → 실제 실패 화면 | 0:40 | 2:10 | ④ 끝남(42초) |
+| parity | ⑤ 설명 → 실제 실패 화면 | 0:40 | 2:50 | ⑤ 끝남(90초) |
+| KMS 보고서 | ⑩-1·⑩-3 완성 보고서 읽기 | 1:00 | 3:50 | ⑩ 끝남(66초) |
+| 승격 | ⑥ `/health` 새 판 | 0:40 | 4:30 | ⑥ 끝남(2분 13초 → 약 3:30) |
+| 롤백 | ⑦ 되돌리기 → 다시 앞으로 | 1:10 | 5:40 | 26초 + 32초 |
+| 장부 | ⑧ | 0:40 | 6:20 | — |
+| 맺음 | 핵심 메시지 한 문장 | 0:20 | 6:40 | 여유 0:20 |
+
+8분판(③·⑨·⑩-4 포함)이 필요하면 ③ +0:20, ⑩-4 +0:20, ⑨ 는 실행 3분이 걸리므로 발표 중엔 링크로만 한다.
 
 ## 4. 위험과 대응
 
