@@ -6,9 +6,11 @@ tags:
   - birdseye
 date: 2026-11-19
 ---
-# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-23 10:28)
+# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-23 10:30)
 
 사령관이 늘 관리하는 1호 목록이다([사령관 지침](../CLAUDE.md) 1절 절대규칙). 이 파일은 이름·위치를 바꾸지 않고, 진행이 바뀔 때마다 이 자리에서 보강한다. 화면판(html)은 `~/.claude/birdseye/build.py` 가 gh 조회로 만든다. 화면으로 보기: `git pull` 뒤 같은 폴더의 `birdseye-update.html` 을 브라우저로 연다.
+
+**웹 주소** — 프로젝트 웹 (KMS 웹 · 접속 암호): <https://nlpwizard.eta.pyhub.kr> · 모델 API 상태: <https://nlpwizard.eta.pyhub.kr/health> · API 소개 · 문서: <https://54-253-32-153.sslip.io/docs> · 발표 덱: <https://metahomo.github.io/md-slides/miniproject5-kms/> · GitHub 저장소: <https://github.com/metahomo/miniproject5_kms>
 
 > **완료 선언 (11-21 19:50, 사령관)** — 발표 전에 할 수 있는 수행이 모두 완료됐다. GitHub 보드 이슈 15/16·PR 29/29 Done, 강의 순서 11/14, KMS 웹 과제 도메인 게시 확인. 남은 것: #11 발표 → 자원 정리(런북 ③), 22번 닫기 결정, AI 활용 검수 칸, Wiki 첫 페이지.
 
@@ -16,6 +18,7 @@ date: 2026-11-19
 
 | 시각 | 바뀐 것 |
 |---|---|
+| 11-23 10:30 | 첫머리에 웹 주소 게시(연구자 지시) — 프로젝트 웹 nlpwizard.eta.pyhub.kr · 모델 API 상태 /health · API 소개·문서 · 발표 덱 · GitHub 저장소 (11-23 10:29 응답 확인: 웹 401(접속 암호), 나머지 200) |
 | 11-23 10:28 | "AI 에게 서비스 제공하기" 절에 **보고서 도우미 LLM** 줄 추가 — KMS 웹 연구 보고서 화면(/research-reports), 작성 qwen3:4b-instruct-2507 · 근거 검색 bge-m3, 실제 생성 5편 · 인용 27/30 |
 | 11-23 10:23 | 발표 덱 용어 정리(연구자 지시) — "최종 서버 잡"처럼 어색한 번역어를 영어 원어로: job · version(판) · ledger(장부) · snapshot · test set(시험지) · key hash · rate limit · restore drill · uptime monitoring · runner · artifact · rollback / roll-forward. md-slides 5b3d355 — [발표 덱](https://metahomo.github.io/md-slides/miniproject5-kms/) |
 | 11-23 10:21 | 발표 덱에 "보고서 도우미 LLM" 장 추가(4절 끝, 31장) — KMS 웹 연구 보고서 화면의 작성 모델 qwen3:4b-instruct-2507 · 근거 검색 bge-m3 · 참고문헌은 DB 값만, 실제 생성 11-21 14:42 인용 27/30. md-slides df027db, Pages 게시 확인 — [발표 덱](https://metahomo.github.io/md-slides/miniproject5-kms/) |
