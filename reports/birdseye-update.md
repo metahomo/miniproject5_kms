@@ -18,6 +18,7 @@ date: 2026-11-19
 
 | 시각 | 바뀐 것 |
 |---|---|
+| 11-23 10:30 | 발표 덱 C안(연구자 체크) — 3절 첫머리에 설명 장 2개: "MLOps 틀은 강의 그대로, 모델만 바꿨다"(단계별 강의 ↔ 이 프로젝트 ↔ 변경) · "모델을 바꾸면 어디가 바뀌나"(train.py·features.py·ONNX 옵션만, 게이트·parity·promote·rollback·ledger 는 그대로인 이유). 교수님 기준 "이해·세팅·이유 설명". 33장, md-slides d98bdf2 — [발표 덱](https://metahomo.github.io/md-slides/miniproject5-kms/) |
 | 11-23 10:30 | 첫머리에 웹 주소 게시(연구자 지시) — 프로젝트 웹 nlpwizard.eta.pyhub.kr · 모델 API 상태 /health · API 소개·문서 · 발표 덱 · GitHub 저장소 (11-23 10:29 응답 확인: 웹 401(접속 암호), 나머지 200) |
 | 11-23 10:28 | "AI 에게 서비스 제공하기" 절에 **보고서 도우미 LLM** 줄 추가 — KMS 웹 연구 보고서 화면(/research-reports), 작성 qwen3:4b-instruct-2507 · 근거 검색 bge-m3, 실제 생성 5편 · 인용 27/30 |
 | 11-23 10:23 | 발표 덱 용어 정리(연구자 지시) — "최종 서버 잡"처럼 어색한 번역어를 영어 원어로: job · version(판) · ledger(장부) · snapshot · test set(시험지) · key hash · rate limit · restore drill · uptime monitoring · runner · artifact · rollback / roll-forward. md-slides 5b3d355 — [발표 덱](https://metahomo.github.io/md-slides/miniproject5-kms/) |
