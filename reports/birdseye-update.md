@@ -6,18 +6,19 @@ tags:
   - birdseye
 date: 2026-11-19
 ---
-# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-23 10:47)
+# 조감도 — 미니 프로젝트 5 (마지막 갱신 2026-11-23 11:06)
 
 사령관이 늘 관리하는 1호 목록이다([사령관 지침](../CLAUDE.md) 1절 절대규칙). 이 파일은 이름·위치를 바꾸지 않고, 진행이 바뀔 때마다 이 자리에서 보강한다. 화면판(html)은 `~/.claude/birdseye/build.py` 가 gh 조회로 만든다. 화면으로 보기: `git pull` 뒤 같은 폴더의 `birdseye-update.html` 을 브라우저로 연다.
 
 **웹 주소** — 프로젝트 웹 (KMS 웹 · 접속 암호): <https://nlpwizard.eta.pyhub.kr> · 모델 API 상태: <https://nlpwizard.eta.pyhub.kr/health> · API 소개 · 문서: <https://54-253-32-153.sslip.io/docs> · 발표 덱: <https://metahomo.github.io/md-slides/miniproject5-kms/> · GitHub 저장소: <https://github.com/metahomo/miniproject5_kms>
 
-> **완료 선언 (11-21 19:50, 사령관)** — 발표 전에 할 수 있는 수행이 모두 완료됐다. GitHub 보드 이슈 15/16·PR 29/29 Done, 강의 순서 11/14, KMS 웹 과제 도메인 게시 확인. 남은 것: #11 발표 → 자원 정리(런북 ③), 22번 닫기 결정, AI 활용 검수 칸, Wiki 첫 페이지.
+> **완료 선언 (11-21 19:50, 사령관)** — 발표 전에 할 수 있는 수행이 모두 완료됐다. GitHub 보드 이슈 15/16·PR 29/29 Done, 강의 순서 11/14, KMS 웹 과제 도메인 게시 확인. 남은 것: #11 발표 → 자원 정리(런북 ③), 22번 닫기 결정, AI 활용 검수 칸, Wiki 첫 페이지. **발표 뒤 할 일(11-23 연구자 결정)**: B안 근거 선택 모델(reranker — 질문·논문 → 인용할 근거 점수, 라벨 = 실제 보고서 인용 기록, CPU·ONNX, 같은 model.yml 틀에 게이트·parity·승격).
 
 ## 0. 최근 변경 (새로 고침 확인용)
 
 | 시각 | 바뀐 것 |
 |---|---|
+| 11-23 11:06 | 발표 뒤 할 일 추가(연구자 결정) — B안 근거 선택 모델(reranker — 질문·논문 → 인용할 근거 점수, 라벨 = 실제 보고서 인용 기록, CPU·ONNX, 같은 model.yml 틀에 게이트·parity·승격). 발표 전에는 C안(덱 설명 장)만 |
 | 11-23 10:47 | 시연 대본 7분판 시간표 — ⑦ 롤백 1:10 → 1:00(실측 26+32초), 맺음 6:50 · 여유 0:10 확보 |
 | 11-23 10:35 | 시연 대본(presentation/05-demo-script.md)에 ⑪ "MLOps 틀 설명" 30초 추가 — 덱 25·26장을 ⑧ 장부 뒤·맺음 앞에서 15초씩, 7분판 시간표: 장부 0:40→0:30, ⑪ 0:30, 맺음 7:00(여유 0) |
 | 11-23 10:30 | 발표 덱 C안(연구자 체크) — 3절 첫머리에 설명 장 2개: "MLOps 틀은 강의 그대로, 모델만 바꿨다"(단계별 강의 ↔ 이 프로젝트 ↔ 변경) · "모델을 바꾸면 어디가 바뀌나"(train.py·features.py·ONNX 옵션만, 게이트·parity·promote·rollback·ledger 는 그대로인 이유). 교수님 기준 "이해·세팅·이유 설명". 33장, md-slides d98bdf2 — [발표 덱](https://metahomo.github.io/md-slides/miniproject5-kms/) |
