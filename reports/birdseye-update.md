@@ -12,6 +12,17 @@ date: 2026-11-19
 
 바로 가기: [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports) · [최신 보고서 261123-1912](https://nlpwizard.eta.pyhub.kr/research-reports?topic=coaching-leadership&report=261123-1912)
 
+발표 연결 순서도 — ①→②→③→④ 로 오가고, 마무리는 ① 조감도로 돌아온다(점선 = 그 화면의 내용이 어디서 오는가)
+
+```mermaid
+flowchart LR
+  A["① 조감도<br/>발표 목차"] --> B["② 발표 슬라이드<br/>35장 · PDF"] --> C["③ GitHub<br/>코드·PR·Actions 시연"] --> D["④ 웹 연구 보고서<br/>KMS · 261123-1912"]
+  D -. 마무리 .-> A
+  B1["md-slides 저장소 → GitHub Pages"] -.-> B
+  C1["ci·model·rollback → Lightsail API"] -.-> C
+  D1["Mac 의 KMS → 역방향 터널 → 도메인"] -.-> D
+```
+
 | 순서 | 발표 주요 제목 | 조감도에서 보기 |
 |---|---|---|
 | 1 | **아키텍처 설계의 이유와 Flow** (필수) | 전체 흐름도 · 단계별 설명 |
