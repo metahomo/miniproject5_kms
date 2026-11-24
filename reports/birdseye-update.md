@@ -10,7 +10,7 @@ date: 2026-11-19
 
 **조감도** · MLOps 엔지니어 과정 1기 · 발표 2026.11.24(화) · 발표자 Phillip Y. Park (마지막 갱신 2026-11-24 15:36)
 
-바로 가기: [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports) · [최신 보고서 261123-1912](https://nlpwizard.eta.pyhub.kr/research-reports?topic=coaching-leadership&report=261123-1912)
+바로 가기: [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports)
 
 발표 연결 순서도 — ①→②→③→④ 로 오가고, 마무리는 ① 조감도로 돌아온다(점선 = 그 화면의 내용이 어디서 오는가)
 
