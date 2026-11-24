@@ -10,17 +10,16 @@ date: 2026-11-19
 
 **조감도** · MLOps 엔지니어 과정 1기 · 발표 2026.11.24(화) · 발표자 Phillip Y. Park (마지막 갱신 2026-11-24 15:36)
 
-바로 가기: [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports)
+바로 가기: [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports) · [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/)
 
-발표 연결 순서도 — ①→②→③→④ 로 오가고, 마무리는 ① 조감도로 돌아온다(점선 = 그 화면의 내용이 어디서 오는가)
+발표 연결 순서도 — ① 조감도 → ② GitHub → ③ 웹 연구 보고서 → ④ 발표 슬라이드(마지막) (점선 = 그 화면의 내용이 어디서 오는가)
 
 ```mermaid
 flowchart LR
-  A["① 조감도<br/>발표 목차"] --> B["② 발표 슬라이드<br/>35장 · PDF"] --> C["③ GitHub<br/>코드·PR·Actions 시연"] --> D["④ 웹 연구 보고서<br/>KMS · 261123-1912"]
-  D -. 마무리 .-> A
-  B1["md-slides 저장소 → GitHub Pages"] -.-> B
+  A["① 조감도<br/>발표 목차"] --> C["② GitHub<br/>코드·PR·Actions 시연"] --> D["③ 웹 연구 보고서<br/>KMS · 261123-1912"] --> B["④ 발표 슬라이드<br/>35장 · PDF"]
   C1["ci·model·rollback → Lightsail API"] -.-> C
   D1["Mac 의 KMS → 역방향 터널 → 도메인"] -.-> D
+  B1["md-slides 저장소 → GitHub Pages"] -.-> B
 ```
 
 | 순서 | 발표 주요 제목 | 조감도에서 보기 |
