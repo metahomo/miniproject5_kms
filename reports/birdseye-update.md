@@ -10,6 +10,8 @@ date: 2026-11-19
 
 **조감도** · MLOps 엔지니어 과정 1기 · 발표 2026.11.24(화) · 발표자 Phillip Y. Park (마지막 갱신 2026-11-24 15:36)
 
+바로 가기: [▶ 발표 슬라이드](https://metahomo.github.io/md-slides/miniproject5-kms/) · [GitHub 저장소](https://github.com/metahomo/miniproject5_kms) · [웹 연구 보고서](https://nlpwizard.eta.pyhub.kr/research-reports) · [최신 보고서 261123-1912](https://nlpwizard.eta.pyhub.kr/research-reports?topic=coaching-leadership&report=261123-1912)
+
 | 순서 | 발표 주요 제목 | 조감도에서 보기 |
 |---|---|---|
 | 1 | **아키텍처 설계의 이유와 Flow** (필수) | 전체 흐름도 · 단계별 설명 |
